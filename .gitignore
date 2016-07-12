@@ -1,0 +1,18 @@
+*~
+*.sv
+*.bak
+*.backup
+*.tmp
+*.o
+*.old
+*.swp
+
+/build
+/output
+
+# eclipse
+.refactorings
+.project
+.cproject
+.settings
+
