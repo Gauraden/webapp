@@ -47,6 +47,8 @@ typedef ProtocolHTTP::Content::Type           FileType;
 typedef enum_serializer::Collection<FileType> CollectionOfFileTypes;
 
 static CollectionOfFileTypes file_types([](CollectionOfFileTypes &list) {
+  // Список типов:
+  // https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_MIME-%D1%82%D0%B8%D0%BF%D0%BE%D0%B2
   // text
   list.Add("txt",   FileType(MimeType::kText,        "plain"));
   list.Add("html",  FileType(MimeType::kText,        "html"));
