@@ -1,10 +1,11 @@
-add_executable(vbr_webapp_test
-    vbr_webapp_test.cpp
+add_executable (units_tests
+  units_tests.cpp
+  protocol_test.cpp
 )
 
-target_link_libraries (vbr_webapp_test
+target_link_libraries (units_tests
+  boost_unit_test_framework
   vbr_webapp_lib
 )
 
-install_targets(/ vbr_webapp_test)
-
+install_targets(/ units_tests)
