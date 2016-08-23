@@ -1,10 +1,11 @@
 /*
- * vbr_webapp_lib.cpp
+ * webapp_lib.cpp
  *
  *  Created on: 12 июля 2016 г.
  *      Author: denis
  */
-#include "vbr_webapp_lib.hpp"
+#include "webapp_lib.hpp"
+
 #include <list>
 #include <iostream>
 #include <boost/asio.hpp>
@@ -54,6 +55,7 @@ static CollectionOfFileTypes file_types([](CollectionOfFileTypes &list) {
   list.Add("js",    FileType(MimeType::kText,        "javascript"));
   list.Add("json",  FileType(MimeType::kApplication, "json"));
   // images
+  list.Add("bmp",   FileType(MimeType::kImage, "bmp"));
   list.Add("jpeg",  FileType(MimeType::kImage, "jpeg"));
   list.Add("jpg",   FileType(MimeType::kImage, "jpeg"));
   list.Add("png",   FileType(MimeType::kImage, "png"));
@@ -1164,12 +1166,24 @@ void ProtocolHTTP::Response::SetHeader(Code status_id, const Header &header) {
 }
 
 void ProtocolHTTP::Response::SetBody(const std::string &src) {
+  if (_state->status_id == k404) {
+    SetHeader(k200, GetHeaderForText("html", ""));
+  }
   _state->src_body.reset(new SourceFromStream(src));
   _state->header.content.length = src.size();
   SetupHeader(_state);
 }
 
-void ProtocolHTTP::Response::SetBody(const Byte *data, USize size) {
+void ProtocolHTTP::Response::SetBody(const std::string &type,
+                                     const Byte        *data,
+                                           USize        size) {
+  if (_state->status_id == k404 && type.size() > 0) {
+    FileType ftype;
+    Header hd;
+    if (file_types.Find(type, &hd.content.type)) {
+      SetHeader(k200, hd);
+    }
+  }
   _state->src_body.reset(new SourceFromArray(data, size));
   _state->header.content.length = size;
   SetupHeader(_state);

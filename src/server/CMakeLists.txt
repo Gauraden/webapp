@@ -1,10 +1,10 @@
-add_executable(vbr_webapp_server
-  vbr_webapp_server.cpp
+add_executable(webapp_server
+  webapp_server.cpp
 )
 
-target_link_libraries (vbr_webapp_server
-  vbr_webapp_lib
+target_link_libraries (webapp_server
+  webapp_lib
 )
 
-install_targets(/ vbr_webapp_server)
+install_targets(/ webapp_server)
 

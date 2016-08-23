@@ -1,8 +1,9 @@
+
 #define empty() __empty()
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <iostream>
-#include "vbr_webapp_lib.hpp"
+#include "../back-end/webapp_lib.hpp"
 // Помощник.
 // Данная структура будет передана каждому тесту!
 // Конструктор и деструктор обязательны!

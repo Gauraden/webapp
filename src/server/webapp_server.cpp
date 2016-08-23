@@ -1,18 +1,16 @@
 /*
- * vbr_webapp_server.cpp
+ * webapp_server.cpp
  *
  *  Created on: 12 июля 2016 г.
  *      Author: denis
  */
 
-#include "vbr_webapp_lib.hpp"
 #include <iostream>
+#include "../back-end/webapp_lib.hpp"
 
 bool TestHandler(const webapp::ProtocolHTTP::Uri::Path &path,
                  const webapp::ProtocolHTTP::Request   &request,
                        webapp::ProtocolHTTP::Response  *response) {
-  response->SetHeader(webapp::ProtocolHTTP::k200,
-                      webapp::ProtocolHTTP::Response::GetHeaderForText("plain", ""));
   response->SetBody("Hello from vbr web app!");
   return true;
 }
@@ -20,8 +18,6 @@ bool TestHandler(const webapp::ProtocolHTTP::Uri::Path &path,
 bool TestPupokHandler(const webapp::ProtocolHTTP::Uri::Path &path,
                       const webapp::ProtocolHTTP::Request   &request,
                             webapp::ProtocolHTTP::Response  *response) {
-  response->SetHeader(webapp::ProtocolHTTP::k200,
-                      webapp::ProtocolHTTP::Response::GetHeaderForText("plain", ""));
   response->SetBody("Hello from vbr web app! /test/pupok !");
   return true;
 }

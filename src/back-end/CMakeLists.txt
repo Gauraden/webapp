@@ -1,11 +1,11 @@
-add_library(vbr_webapp_lib
-  vbr_webapp_lib.cpp
+add_library(webapp_lib
+  webapp_lib.cpp
 )
 
-target_link_libraries (vbr_webapp_lib
+target_link_libraries (webapp_lib
   boost_system
   boost_filesystem
   boost_date_time
 )
 
-install_targets(/ vbr_webapp_lib)
+install_targets(/ webapp_lib)

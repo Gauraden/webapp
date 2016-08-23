@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(vbr_webapp)
+project(webapp)
 find_package(PkgConfig)
 
 set(CMAKE_INSTALL_PREFIX   "${OUTPUT_DIR}")

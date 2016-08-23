@@ -1,12 +1,12 @@
 /*
- * vbr_webapp_lib.hpp
+ * webapp_lib.hpp
  *
  *  Created on: 12 июля 2016 г.
  *      Author: denis
  */
 
-#ifndef BACK_END_VBR_WEBAPP_LIB_HPP_
-#define BACK_END_VBR_WEBAPP_LIB_HPP_
+#ifndef BACK_END_WEBAPP_LIB_HPP_
+#define BACK_END_WEBAPP_LIB_HPP_
 
 #include <stdint.h>
 #include <list>
@@ -190,9 +190,9 @@ class ProtocolHTTP : public Protocol {
       Expires();
       Expires(const std::string &time_value);
       Expires& Now();
-      Expires& Hour(USize    value = 1);
-      Expires& Day (USize    value = 1);
-      Expires& Week(USize    value = 1);
+      Expires& Hour(USize value = 1);
+      Expires& Day (USize value = 1);
+      Expires& Week(USize value = 1);
       std::string ToString() const;
 
       PTime time;
@@ -358,7 +358,7 @@ class ProtocolHTTP : public Protocol {
         void SetHeader(Code status_id);
         void SetHeader(Code status_id, const Header &header);
         void SetBody(const std::string &src);
-        void SetBody(const Byte *data, USize size);
+        void SetBody(const std::string &type, const Byte *data, USize size);
         bool UseFile(const Content::Type &type, const std::string &path);
       private:
         friend class ProtocolHTTP;
@@ -465,4 +465,4 @@ class ServerHttp : public Server {
 
 } // namespace webapp
 
-#endif /* BACK_END_VBR_WEBAPP_LIB_HPP_ */
+#endif /* BACK_END_WEBAPP_LIB_HPP_ */
