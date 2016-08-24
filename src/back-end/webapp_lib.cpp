@@ -719,11 +719,16 @@ bool ProtocolHTTP::Request::Completed() const {
 }
 
 const std::string& ProtocolHTTP::Request::Get(const std::string &name) const {
+  static const std::string kEmptyStr;
+  return Get(name, kEmptyStr);
+}
+
+const std::string& ProtocolHTTP::Request::Get(const std::string &name,
+                                              const std::string &def_val) const {
   const Uri::Query &kQuery = _state->header.line.target.get_query();
   Uri::Query::const_iterator q_it = kQuery.find(name);
   if (q_it == kQuery.end()) {
-    static const std::string kEmptyStr;
-    return kEmptyStr;
+    return def_val;
   }
   return q_it->second;
 }

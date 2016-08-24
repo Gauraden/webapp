@@ -287,6 +287,8 @@ class ProtocolHTTP : public Protocol {
         void UseStorageGenerator(Field::Storage::Generator generator);
         bool Completed() const;
         const std::string& Get(const std::string &name) const;
+        const std::string& Get(const std::string &name,
+                               const std::string &def_val) const;
         const Field* const Post(const std::string &name) const;
       private:
         friend class ProtocolHTTP;
