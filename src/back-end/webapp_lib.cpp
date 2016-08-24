@@ -269,11 +269,13 @@ bool ProtocolHTTP::Uri::CheckAuthority(const std::string &val) {
     set_offset(kUInfoEndOff + 1);
   }
   // ищем адрес/имя хоста и номер его порта
-  const size_t kPortOff = val.find_first_of(':', get_offset());
   const size_t kEndOff  = val.find_first_of("/?", get_offset());
-  if (kPortOff != std::string::npos) {
-    _authority.host = val.substr(get_offset(), kPortOff - get_offset());
-    _authority.port = val.substr(kPortOff, kEndOff - get_offset());
+  if (kEndOff != std::string::npos) {
+    const std::string kHostPort(val.substr(get_offset(), kEndOff - get_offset()));
+    const size_t      kPortOff = kHostPort.find_first_of(':');
+    _authority.host = kHostPort.substr(0, kPortOff);
+    _authority.port = kPortOff != std::string::npos ? kHostPort.substr(kPortOff)
+                                                    : "80";
     if (not Validator(_authority.port, [](Validator &v) -> bool {
         return v.Digit();
       }).Result()) {

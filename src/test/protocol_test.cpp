@@ -340,6 +340,11 @@ BOOST_AUTO_TEST_CASE(HttpUriQueryTest) {
   BOOST_CHECK(uri.get_query().size() == 2);
   BOOST_CHECK(uri.get_query().find("var_0")->second == "");
   BOOST_CHECK(uri.get_query().find("")->second == "val_1");
+
+  const std::string kFromVal("ftp://jenny/firmwares/F1772/cortex_a8.regigraf.1772.53.UNIVERSAL-last.rbf");
+  BOOST_CHECK(uri.ParseVal("http://192.168.7.223/action/update/firmware?from=" + kFromVal));
+  BOOST_CHECK(uri.get_query().size() == 1);
+  BOOST_CHECK(uri.get_query().find("from")->second == kFromVal);
 }
 
 BOOST_AUTO_TEST_CASE(HttpUriFragmentTest) {
