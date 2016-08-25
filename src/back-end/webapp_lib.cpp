@@ -888,17 +888,18 @@ static bool ParseHeaderField(const std::string    &line,
     return true;
   }
   // https://tools.ietf.org/html/rfc7230#section-3.2
-  const size_t kColonOff = line.find_first_of(':');
+  const size_t      kSpaceOff = line.find_first_of(' ');
+  const std::string kField    = line.substr(0, kSpaceOff);
+  const size_t      kColonOff = kField.find_first_of(':');
   // если не найден разделитель ':', тогда перед нами start-line
   if (kColonOff == std::string::npos) {
-    const size_t kUriOff = line.find_first_of(' ');
-    out->line.method = GetMethodFromStr(line.substr(0, kUriOff));
+    out->line.method = GetMethodFromStr(kField);
     if (out->line.method == ProtocolHTTP::kUnknown) {
       return false;
     }
-    const size_t kVerOff = line.find_first_of(' ', kUriOff + 1);
-    if (not out->line.target.ParseVal(line.substr(kUriOff + 1,
-                                                  kVerOff - kUriOff - 1))) {
+    const size_t kVerOff = line.find_first_of(' ', kSpaceOff + 1);
+    if (not out->line.target.ParseVal(line.substr(kSpaceOff + 1,
+                                                  kVerOff - kSpaceOff - 1))) {
       return false;
     }
     out->line.version = line.substr(kVerOff + 1);

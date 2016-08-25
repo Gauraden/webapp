@@ -71,14 +71,16 @@ struct ProtocolTestFixture {
     }
     Packet& Finalize() {
       body_buff.seekp(0, std::ios_base::end);
-      const size_t kBodySize = body_buff.tellp();
+      const ssize_t kBodySize = body_buff.tellp();
       char *data = new char[kBodySize];
       // -2 для исключения из размера, пустой строки, отделяющей заголовок от
       // тела. Данная строка присутствует всегда, даже когда в пакете нет тела,
       // по этому она не учитывается
-      AddField("Content-Length", kBodySize - 2);
-      body_buff.read(data, kBodySize);
-      buff.write(data, kBodySize);
+      if (kBodySize > 0) {
+        AddField("Content-Length", kBodySize - 2);
+        body_buff.read(data, kBodySize);
+        buff.write(data, kBodySize);
+      }
       delete[] data;
       return *this;
     }
@@ -341,8 +343,9 @@ BOOST_AUTO_TEST_CASE(HttpUriQueryTest) {
   BOOST_CHECK(uri.get_query().find("var_0")->second == "");
   BOOST_CHECK(uri.get_query().find("")->second == "val_1");
 
+  const std::string kUrl("http://192.168.7.223/action/update/firmware?from=");
   const std::string kFromVal("ftp://jenny/firmwares/F1772/cortex_a8.regigraf.1772.53.UNIVERSAL-last.rbf");
-  BOOST_CHECK(uri.ParseVal("http://192.168.7.223/action/update/firmware?from=" + kFromVal));
+  BOOST_CHECK(uri.ParseVal(kUrl + kFromVal));
   BOOST_CHECK(uri.get_query().size() == 1);
   BOOST_CHECK(uri.get_query().find("from")->second == kFromVal);
 }
@@ -868,6 +871,23 @@ BOOST_AUTO_TEST_CASE(ProtocolHTTPRouterCallHandlerTest) {
   req.reset(new webapp::ProtocolHTTP::Request());
   CreateGetRequest("/node0/node1/fail", req.get());
   BOOST_CHECK(not rt.CallHandlerFor(*req, &resp));
+}
+
+BOOST_AUTO_TEST_CASE(ProtocolHTTPRouterCallHandlerForUrlTest) {
+  typedef boost::scoped_ptr<webapp::ProtocolHTTP::Request> ReqPtr;
+  webapp::ProtocolHTTP::Router   rt;
+  ReqPtr                         req;
+  webapp::ProtocolHTTP::Response resp;
+  BOOST_CHECK(rt.AddHandlerFor("/action/update/firmware", RouterHandler_0));
+  router_handler_0_active = false;
+
+  const std::string kUrl("http://192.168.7.223/action/update/firmware?from=");
+  const std::string kFromVal("ftp://jenny/firmwares/F1772/cortex_a8.regigraf.1772.53.UNIVERSAL-last.rbf");
+
+  req.reset(new webapp::ProtocolHTTP::Request());
+  CreateGetRequest(kUrl + kFromVal, req.get());
+  BOOST_CHECK(rt.CallHandlerFor(*req, &resp));
+  BOOST_CHECK(router_handler_0_active);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
