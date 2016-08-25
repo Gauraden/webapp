@@ -553,6 +553,26 @@ BOOST_AUTO_TEST_CASE(ProtocolHTTPGetRequestTest) {
   BOOST_CHECK(req.Get("мир")   == "рим");
 }
 
+BOOST_AUTO_TEST_CASE(ProtocolHTTPGetRequestTypeCastTest) {
+  const size_t kBuffMaxSize = 1024;
+  webapp::ProtocolHTTP::ArrayOfBytes buff(new webapp::ProtocolHTTP::Byte[kBuffMaxSize]);
+  ProtocolTestFixture::Packet pkt;
+  pkt.AddStartLine("GET",
+      "/hello.txt?var_0=777&var_1=666",
+      "HTTP/1.1");
+  pkt.AddField("User-Agent", kUserAgent);
+  pkt.AddField("Host", kHost);
+  pkt.Finalize();
+
+  webapp::ProtocolHTTP::Request req;
+  webapp::ProtocolHTTP          proto(webapp::ProtocolHTTP::Router::Create());
+  const size_t kActSize = pkt.ConvertToArray(buff.get(), kBuffMaxSize);
+  BOOST_CHECK(proto.ParseRequest(buff.get(), kActSize, &req));
+
+  BOOST_CHECK(req.Get("var_0", (int)0) == 777);
+  BOOST_CHECK(req.Get("var_1", (int)0) == 666);
+}
+
 BOOST_AUTO_TEST_CASE(ProtocolHTTPCopyingOfRequestTest) {
   const size_t kBuffMaxSize = 1024;
   webapp::ProtocolHTTP::ArrayOfBytes buff(new webapp::ProtocolHTTP::Byte[kBuffMaxSize]);

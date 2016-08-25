@@ -721,18 +721,24 @@ bool ProtocolHTTP::Request::Completed() const {
 }
 
 const std::string& ProtocolHTTP::Request::Get(const std::string &name) const {
-  static const std::string kEmptyStr;
-  return Get(name, kEmptyStr);
-}
-
-const std::string& ProtocolHTTP::Request::Get(const std::string &name,
-                                              const std::string &def_val) const {
   const Uri::Query &kQuery = _state->header.line.target.get_query();
   Uri::Query::const_iterator q_it = kQuery.find(name);
   if (q_it == kQuery.end()) {
-    return def_val;
+    static const std::string kEmptyStr;
+    return kEmptyStr;
   }
   return q_it->second;
+}
+
+template <>
+int ProtocolHTTP::Request::Get(const std::string &name,
+                               const int         &def_val) const {
+  static const std::string kNullStr("0");
+  const std::string &kVal = Get(name);
+  if (kVal.size() == 0) {
+    return def_val;
+  }
+  return atol(kVal.c_str());
 }
 
 const ProtocolHTTP::Request::Field* const ProtocolHTTP::Request::Post(
