@@ -1710,7 +1710,7 @@ class Server::Resources {
         typedef boost::shared_ptr<Session> Ptr;
         typedef std::list<Ptr>             ListOfPtr;
 
-        static const USize kDefBuffSize = 10240;
+        static const USize kDefBuffSize = 1514; // MTU
 
         Session(Socket         *socket_ptr,
                 Protocol       *protocol_ptr,
