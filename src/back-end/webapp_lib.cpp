@@ -1210,6 +1210,7 @@ static bool SetupHeader(ProtocolHTTP::Response::State *state) {
   if (state->header.cache_control.get_directive().size() != 0) {
     str_h << "Cache-Control: " << state->header.cache_control.get_directive()
           << kCrLf;
+    state->header.cache_control.Reset();
   }
   str_h << kCrLf;
   state->src_header.reset(new ProtocolHTTP::Response::SourceFromStream(str_h.str()));
