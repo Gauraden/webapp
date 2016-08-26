@@ -1664,7 +1664,9 @@ class Server::Resources {
                 Inspector::Ptr  inspector_ptr)
             : socket(socket_ptr),
               protocol(protocol_ptr),
-              inspector(inspector_ptr) {
+              inspector(inspector_ptr),
+              need_to_send(0),
+              was_sended(0) {
           buff.reset(new Protocol::Byte[kDefBuffSize]);
         }
 
@@ -1672,6 +1674,8 @@ class Server::Resources {
           if (socket == 0) {
             return;
           }
+          need_to_send = 0;
+          was_sended   = 0;
           socket->async_read_some(boost::asio::buffer(buff.get(), kDefBuffSize),
             boost::bind(&Session::ReadHandler,
               this,
@@ -1685,8 +1689,13 @@ class Server::Resources {
                                      Inspector::Error());
             return;
           }
-          const USize kSize = protocol->PrepareResponse(buff.get(), kDefBuffSize);
-          if (kSize == 0) {
+          const USize kWasLost = need_to_send - was_sended;
+          need_to_send = kWasLost;
+          if (kWasLost == 0) {
+            need_to_send = protocol->PrepareResponse(buff.get(), kDefBuffSize);
+            was_sended   = 0;
+          }
+          if (need_to_send == 0) {
             if (protocol->NeedToCloseSession()) {
               socket->close();
               return;
@@ -1694,7 +1703,8 @@ class Server::Resources {
             WaitForRequest();
             return;
           }
-          socket->async_write_some(asio::buffer(buff.get(), kSize),
+          socket->async_write_some(asio::buffer(buff.get() + was_sended,
+                                   need_to_send),
             boost::bind(&Session::WriteHandler,
               this,
               asio::placeholders::error,
@@ -1727,6 +1737,7 @@ class Server::Resources {
             inspector->RegisterError("Ошибка отправки данных", error);
             return;
           }
+          was_sended = amount;
           SendResponse();
         }
 
@@ -1738,6 +1749,8 @@ class Server::Resources {
         Protocol::ArrayOfBytes buff;
         Protocol::Ptr          protocol;
         Inspector::Ptr         inspector;
+        USize                  need_to_send;
+        USize                  was_sended;
     };
 
     Resources(Address         addr,
