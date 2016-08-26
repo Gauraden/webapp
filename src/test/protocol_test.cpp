@@ -611,14 +611,12 @@ BOOST_AUTO_TEST_CASE(ProtocolHTTPExpireTest) {
 }
 
 BOOST_AUTO_TEST_CASE(ProtocolHTTPCacheControlTest) {
-//  webapp::ProtocolHTTP::CacheControl ctl;
-//  BOOST_CHECK(ctl.directive == "");
-//  ctl.NoStore();
-//  BOOST_CHECK(ctl.directive == "no-store");
-//  ctl.MaxAge(5);
-//  BOOST_CHECK(ctl.directive == "max-age=5");
-//  ctl.Public();
-//  BOOST_CHECK(ctl.directive == "public");
+  webapp::ProtocolHTTP::CacheControl ctl;
+  BOOST_CHECK(ctl.get_directive() == "");
+  ctl.NoStore();
+  BOOST_CHECK(ctl.get_directive() == "no-store");
+  ctl.MaxAge(5);
+  BOOST_CHECK(ctl.get_directive() == "max-age=5");
 }
 
 BOOST_AUTO_TEST_CASE(ProtocolHTTPResponseGetTextHeaderTest) {

@@ -184,7 +184,14 @@ class ProtocolHTTP : public Protocol {
       ListOfString encoding;
     };
     // Cache-Control: https://tools.ietf.org/html/rfc7234#section-5.2
-    // ...
+    class CacheControl {
+      public:
+        void MaxAge(unsigned seconds);
+        void NoStore();
+        const std::string& get_directive() const;
+      private:
+        std::string _directive;
+    };
     // https://tools.ietf.org/html/rfc7234#section-5.3
     struct Expires {
       Expires();
@@ -207,6 +214,7 @@ class ProtocolHTTP : public Protocol {
       USize        age; // https://tools.ietf.org/html/rfc7234#section-5.1
       Content      content;
       Expires      expires;
+      CacheControl cache_control;
       bool         complete;
     };
 
@@ -357,10 +365,13 @@ class ProtocolHTTP : public Protocol {
         static Header GetHeaderForImage(const std::string &format);
         static Header GetHeaderForJSON();
 
+        CacheControl& UseCacheControl();
+
         void SetHeader(Code status_id);
         void SetHeader(Code status_id, const Header &header);
+        void SetHeader(const std::string &type);
         void SetBody(const std::string &src);
-        void SetBody(const std::string &type, const Byte *data, USize size);
+        void SetBody(const Byte *data, USize size);
         bool UseFile(const Content::Type &type, const std::string &path);
       private:
         friend class ProtocolHTTP;

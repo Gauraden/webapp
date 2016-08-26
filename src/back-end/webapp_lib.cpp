@@ -446,6 +446,20 @@ std::string ProtocolHTTP::Expires::ToString() const {
   buff << time;
   return buff.str();
 }
+// CacheControl ----------------------------------------------------------------
+void ProtocolHTTP::CacheControl::MaxAge(unsigned seconds) {
+  std::stringstream buff;
+  buff << "max-age=" << seconds;
+  _directive = buff.str();
+}
+
+void ProtocolHTTP::CacheControl::NoStore() {
+  _directive = "no-store";
+}
+
+const std::string& ProtocolHTTP::CacheControl::get_directive() const {
+  return _directive;
+}
 // Protocol --------------------------------------------------------------------
 Protocol::Protocol() {
 }
@@ -1165,10 +1179,18 @@ static bool SetupHeader(ProtocolHTTP::Response::State *state) {
         << "Content-Length: " << state->header.content.length
         << kCrLf
         << "Expires: "        << state->header.expires.ToString()
-        << kCrLf
         << kCrLf;
+  if (state->header.cache_control.get_directive().size() != 0) {
+    str_h << "Cache-Control: " << state->header.cache_control.get_directive()
+          << kCrLf;
+  }
+  str_h << kCrLf;
   state->src_header.reset(new ProtocolHTTP::Response::SourceFromStream(str_h.str()));
   return true;
+}
+
+ProtocolHTTP::CacheControl& ProtocolHTTP::Response::UseCacheControl() {
+  return _state->header.cache_control;
 }
 
 void ProtocolHTTP::Response::SetHeader(Code status_id) {
@@ -1181,6 +1203,17 @@ void ProtocolHTTP::Response::SetHeader(Code status_id, const Header &header) {
   _state->header    = header;
 }
 
+void ProtocolHTTP::Response::SetHeader(const std::string &type) {
+  if (type.size() == 0) {
+    return;
+  }
+  FileType ftype;
+  Header   hd;
+  if (file_types.Find(type, &hd.content.type)) {
+    SetHeader(k200, hd);
+  }
+}
+
 void ProtocolHTTP::Response::SetBody(const std::string &src) {
   if (_state->status_id == k404) {
     SetHeader(k200, GetHeaderForText("html", ""));
@@ -1190,16 +1223,8 @@ void ProtocolHTTP::Response::SetBody(const std::string &src) {
   SetupHeader(_state);
 }
 
-void ProtocolHTTP::Response::SetBody(const std::string &type,
-                                     const Byte        *data,
-                                           USize        size) {
-  if (_state->status_id == k404 && type.size() > 0) {
-    FileType ftype;
-    Header hd;
-    if (file_types.Find(type, &hd.content.type)) {
-      SetHeader(k200, hd);
-    }
-  }
+void ProtocolHTTP::Response::SetBody(const Byte  *data,
+                                           USize  size) {
   _state->src_body.reset(new SourceFromArray(data, size));
   _state->header.content.length = size;
   SetupHeader(_state);
