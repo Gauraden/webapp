@@ -1710,7 +1710,7 @@ class Server::Resources {
         typedef boost::shared_ptr<Session> Ptr;
         typedef std::list<Ptr>             ListOfPtr;
 
-        static const USize kDefBuffSize = 65536;
+        static const USize kDefBuffSize = 10240;
 
         Session(Socket         *socket_ptr,
                 Protocol       *protocol_ptr,
