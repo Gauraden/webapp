@@ -447,14 +447,41 @@ std::string ProtocolHTTP::Expires::ToString() const {
   return buff.str();
 }
 // CacheControl ----------------------------------------------------------------
-void ProtocolHTTP::CacheControl::MaxAge(unsigned seconds) {
-  std::stringstream buff;
-  buff << "max-age=" << seconds;
-  _directive = buff.str();
+void PushToStrList(const std::string &val, std::string *out) {
+  if (out == 0 || val.size() == 0) {
+    return;
+  }
+  if (out->size() > 0) {
+    *out += ", ";
+  }
+  *out += val;
 }
 
-void ProtocolHTTP::CacheControl::NoStore() {
-  _directive = "no-store";
+ProtocolHTTP::CacheControl& ProtocolHTTP::CacheControl::Reset() {
+  _directive.clear();
+  return *this;
+}
+
+ProtocolHTTP::CacheControl& ProtocolHTTP::CacheControl::MaxAge(unsigned seconds) {
+  std::stringstream buff;
+  buff << "max-age=" << seconds;
+  PushToStrList(buff.str(), &_directive);
+  return *this;
+}
+
+ProtocolHTTP::CacheControl& ProtocolHTTP::CacheControl::NoStore() {
+  PushToStrList("no-store", &_directive);
+  return *this;
+}
+
+ProtocolHTTP::CacheControl& ProtocolHTTP::CacheControl::NoCache() {
+  PushToStrList("no-cache", &_directive);
+  return *this;
+}
+
+ProtocolHTTP::CacheControl& ProtocolHTTP::CacheControl::MustRevalidate() {
+  PushToStrList("must-revalidate", &_directive);
+  return *this;
 }
 
 const std::string& ProtocolHTTP::CacheControl::get_directive() const {

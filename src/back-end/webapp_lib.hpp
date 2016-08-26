@@ -186,8 +186,11 @@ class ProtocolHTTP : public Protocol {
     // Cache-Control: https://tools.ietf.org/html/rfc7234#section-5.2
     class CacheControl {
       public:
-        void MaxAge(unsigned seconds);
-        void NoStore();
+        CacheControl& Reset();
+        CacheControl& MaxAge(unsigned seconds);
+        CacheControl& NoStore();
+        CacheControl& NoCache();
+        CacheControl& MustRevalidate();
         const std::string& get_directive() const;
       private:
         std::string _directive;

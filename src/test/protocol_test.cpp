@@ -615,8 +615,12 @@ BOOST_AUTO_TEST_CASE(ProtocolHTTPCacheControlTest) {
   BOOST_CHECK(ctl.get_directive() == "");
   ctl.NoStore();
   BOOST_CHECK(ctl.get_directive() == "no-store");
-  ctl.MaxAge(5);
+  ctl.Reset().MaxAge(5);
   BOOST_CHECK(ctl.get_directive() == "max-age=5");
+  ctl.Reset().NoCache().NoStore();
+  BOOST_CHECK(ctl.get_directive() == "no-cache, no-store");
+  ctl.Reset().MustRevalidate();
+  BOOST_CHECK(ctl.get_directive() == "must-revalidate");
 }
 
 BOOST_AUTO_TEST_CASE(ProtocolHTTPResponseGetTextHeaderTest) {
