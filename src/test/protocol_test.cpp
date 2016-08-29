@@ -125,7 +125,7 @@ struct ProtocolTestFixture {
         _data.clear();
       }
       virtual bool Append(const webapp::Protocol::Byte * data, uint32_t size) {
-        _data.assign((char*)data, size);
+        _data.assign(reinterpret_cast<const char*>(data), size);
         return true;
       }
       virtual bool operator()(std::ostream *out) const {
@@ -802,31 +802,35 @@ BOOST_AUTO_TEST_CASE(ProtocolHTTPGetResponseTest) {
   }
 }
 
-bool EmptyRouterHandler(const webapp::ProtocolHTTP::Uri::Path &path,
-                        const webapp::ProtocolHTTP::Request   &request,
-                              webapp::ProtocolHTTP::Response  *response) {
+static
+bool EmptyRouterHandler(const webapp::ProtocolHTTP::Uri::Path &,
+                        const webapp::ProtocolHTTP::Request   &,
+                              webapp::ProtocolHTTP::Response  *) {
   return true;
 }
 
-bool FailRouterHandler(const webapp::ProtocolHTTP::Uri::Path &path,
-                       const webapp::ProtocolHTTP::Request   &request,
-                             webapp::ProtocolHTTP::Response  *response) {
+static
+bool FailRouterHandler(const webapp::ProtocolHTTP::Uri::Path &,
+                       const webapp::ProtocolHTTP::Request   &,
+                             webapp::ProtocolHTTP::Response  *) {
   return false;
 }
 
 static bool router_handler_0_active   = false;
 static bool router_handler_0_1_active = false;
 
-bool RouterHandler_0(const webapp::ProtocolHTTP::Uri::Path &path,
-                     const webapp::ProtocolHTTP::Request   &request,
-                           webapp::ProtocolHTTP::Response  *response) {
+static
+bool RouterHandler_0(const webapp::ProtocolHTTP::Uri::Path &,
+                     const webapp::ProtocolHTTP::Request   &,
+                           webapp::ProtocolHTTP::Response  *) {
   router_handler_0_active = true;
   return true;
 }
 
-bool RouterHandler_0_1(const webapp::ProtocolHTTP::Uri::Path &path,
-                       const webapp::ProtocolHTTP::Request   &request,
-                             webapp::ProtocolHTTP::Response  *response) {
+static
+bool RouterHandler_0_1(const webapp::ProtocolHTTP::Uri::Path &,
+                       const webapp::ProtocolHTTP::Request   &,
+                             webapp::ProtocolHTTP::Response  *) {
   router_handler_0_1_active = true;
   return true;
 }

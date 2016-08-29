@@ -782,7 +782,7 @@ int ProtocolHTTP::Request::Get(const std::string &name,
   return atol(kVal.c_str());
 }
 
-const ProtocolHTTP::Request::Field* const ProtocolHTTP::Request::Post(
+const ProtocolHTTP::Request::Field* ProtocolHTTP::Request::Post(
     const std::string &name) const {
   Field::Map::const_iterator f_it = _state->fields_post.find(name);
   if (f_it == _state->fields_post.end()) {
@@ -988,6 +988,9 @@ static bool ParseHeaderField(const std::string    &line,
   return true;
 }
 // ProtocolHTTP::Response::Source ----------------------------------------------
+ProtocolHTTP::Response::Source::~Source() {
+}
+
 ProtocolHTTP::Response::SourceFromFile::SourceFromFile(
     const std::string &file_name)
     : _file(file_name.c_str(), std::fstream::in),

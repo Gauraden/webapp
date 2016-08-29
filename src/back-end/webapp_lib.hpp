@@ -300,7 +300,7 @@ class ProtocolHTTP : public Protocol {
         const std::string& Get(const std::string &name) const;
         template <typename GetType>
         GetType Get(const std::string &name, const GetType &def_val) const;
-        const Field* const Post(const std::string &name) const;
+        const Field* Post(const std::string &name) const;
       private:
         friend class ProtocolHTTP;
 
@@ -316,6 +316,8 @@ class ProtocolHTTP : public Protocol {
         class Source {
           public:
             typedef boost::scoped_ptr<Source> Ptr;
+
+            virtual ~Source();
 
             virtual bool  IsAvailable() const = 0;
             virtual USize Size() const = 0;
