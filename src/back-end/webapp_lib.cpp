@@ -147,7 +147,6 @@ class Validator {
     }
 
     bool PathSegments() const {
-      const char kSym = *_sym_it;
       return PChar() || Sym(';') || Sym('/');
     }
   private:
