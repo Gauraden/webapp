@@ -16,4 +16,4 @@ all:
 
 tests:
 	@echo "--- Тестирование -----------------"
-	@cd ./output && ./units_tests
+	@cd ./output && ./webapp_units_tests
