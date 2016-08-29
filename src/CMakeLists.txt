@@ -5,6 +5,12 @@ find_package(PkgConfig)
 set(CMAKE_INSTALL_PREFIX   "${OUTPUT_DIR}")
 add_definitions(
   --std=gnu++0x
+  -Wunused-parameter
+  -Wnon-virtual-dtor
+  -Wignored-qualifiers
+  -Wmissing-declarations
+  -Wsign-compare
+  -Wreturn-type
 )
 
 include_directories("back-end")

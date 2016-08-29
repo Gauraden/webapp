@@ -8,21 +8,23 @@
 #include <iostream>
 #include "../back-end/webapp_lib.hpp"
 
-bool TestHandler(const webapp::ProtocolHTTP::Uri::Path &path,
-                 const webapp::ProtocolHTTP::Request   &request,
+static
+bool TestHandler(const webapp::ProtocolHTTP::Uri::Path &,
+                 const webapp::ProtocolHTTP::Request   &,
                        webapp::ProtocolHTTP::Response  *response) {
   response->SetBody("Hello from vbr web app!");
   return true;
 }
 
-bool TestPupokHandler(const webapp::ProtocolHTTP::Uri::Path &path,
-                      const webapp::ProtocolHTTP::Request   &request,
+static
+bool TestPupokHandler(const webapp::ProtocolHTTP::Uri::Path &,
+                      const webapp::ProtocolHTTP::Request   &,
                             webapp::ProtocolHTTP::Response  *response) {
   response->SetBody("Hello from vbr web app! /test/pupok !");
   return true;
 }
 
-int main(int argc, char *argv[]) {
+int main(/*int argc, char *argv[]*/) {
   webapp::ProtocolHTTP::Router::Ptr router = webapp::ProtocolHTTP::Router::Create();
   webapp::ServerHttp srv(router);
   router->AddHandlerFor("/test",       TestHandler);

@@ -447,6 +447,7 @@ std::string ProtocolHTTP::Expires::ToString() const {
   return buff.str();
 }
 // CacheControl ----------------------------------------------------------------
+static
 void PushToStrList(const std::string &val, std::string *out) {
   if (out == 0 || val.size() == 0) {
     return;
@@ -918,6 +919,7 @@ static bool DetectContentDisposition(
       return;
     }
   });
+  return true;
 }
 
 static bool ParseHeaderField(const std::string    &line,
@@ -1340,12 +1342,14 @@ bool ProtocolHTTP::Router::CallHandlerFor(const Request &request,
 
 bool ProtocolHTTP::Router::AddHandlerFor(const std::string  &url,
                                                Functor::Ptr &functor) {
-  State::Node *node_it  = &_state->nodes;
-  size_t       prev_off = 0;
-  ssize_t      off      = url.at(0) == '/' ? 0 : -1;
+  State::Node *node_it   = &_state->nodes;
+  size_t       prev_off  = 0;
+  size_t       off       = 0;
+  ssize_t      first_off = url.at(0) == '/' ? 0 : -1;
   do {
-    prev_off = off + 1;
-    off      = url.find_first_of('/', prev_off);
+    prev_off  = off + 1 + first_off;
+    off       = url.find_first_of('/', prev_off);
+    first_off = 0;
     const size_t kPartSz = off - prev_off;
     if (kPartSz < 2) {
       continue;
@@ -1390,7 +1394,7 @@ bool ProtocolHTTP::Router::AddDirectoryFor(const std::string &url,
     DirInfo(const std::string &val): Functor(0), path_to_dir(val) {}
     virtual ~DirInfo() {}
     virtual bool operator()(const Uri::Path &path,
-                            const Request   &request,
+                            const Request   &,
                                   Response  *response) {
       std::string path_str(path_to_dir);
       Uri::Path::const_iterator it = path.begin();
