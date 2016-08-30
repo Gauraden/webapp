@@ -97,7 +97,7 @@ class ProtocolHTTP : public Protocol {
 
       k500 = 500, // Internal Server Error
       k501 = 501, // Not Implemented
-      k505 = 505, // HTTP Version Not Supported
+      k505 = 505  // HTTP Version Not Supported
     }; // enum Code
 
     class Uri : public AbsoluteUri {

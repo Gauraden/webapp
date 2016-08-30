@@ -1269,6 +1269,7 @@ bool ProtocolHTTP::Response::UseFile(const Content::Type &type,
     return false;
   }
   Header header;
+  header.expires.Week();
   header.content.type   = type;
   header.content.length = _state->src_body->Size();
   SetHeader(k200, header);
