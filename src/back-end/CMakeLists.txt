@@ -1,5 +1,7 @@
 add_library(webapp_lib
   webapp_lib.cpp
+  webapp_proto.cpp
+  webapp_proto_http.cpp
 )
 
 target_link_libraries (webapp_lib
