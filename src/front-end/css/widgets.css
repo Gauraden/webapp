@@ -1,0 +1,8 @@
+body {
+  padding-top: 40px;
+}
+
+.notifier {
+  position: absolute;
+  border  : 1px solid #000000;
+}

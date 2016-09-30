@@ -9,6 +9,7 @@
 #define BACK_END_WEBAPP_LIB_HPP_
 
 #include "webapp_proto_http.hpp"
+#include "webapp_com_ctl.hpp"
 
 namespace webapp {
 

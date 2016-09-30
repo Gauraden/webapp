@@ -17,3 +17,7 @@ all:
 tests:
 	@echo "--- Тестирование -----------------"
 	@cd ./output && ./webapp_units_tests
+
+install:
+	@echo "--- Установка --------------------"
+	@cd ./build/ && $(CMAKE) && make install

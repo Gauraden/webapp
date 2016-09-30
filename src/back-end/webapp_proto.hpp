@@ -14,6 +14,7 @@
 #include "boost/shared_ptr.hpp"
 #include "boost/scoped_array.hpp"
 #include "boost/date_time/posix_time/posix_time_types.hpp"
+#include "boost/core/noncopyable.hpp"
 
 namespace webapp {
 

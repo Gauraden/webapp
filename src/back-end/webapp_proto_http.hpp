@@ -303,8 +303,8 @@ class ProtocolHTTP : public Protocol {
 
         class SourceFromStream : public Source {
           public:
-            SourceFromStream(const std::string       &src);
-            SourceFromStream(const std::stringstream &src);
+            SourceFromStream(const std::string &src);
+            SourceFromStream(std::stringstream *src);
             virtual ~SourceFromStream();
             virtual bool  IsAvailable() const;
             virtual USize Size() const;
@@ -341,8 +341,10 @@ class ProtocolHTTP : public Protocol {
         void SetHeader(Code status_id, const Header &header);
         void SetHeader(const std::string &type);
         void SetBody(const std::string &src);
+        void SetBody(std::stringstream *src);
         void SetBody(const Byte *data, USize size);
         bool UseFile(const Content::Type &type, const std::string &path);
+        const Header& GetHeader() const;
       private:
         friend class ProtocolHTTP;
 
@@ -376,6 +378,7 @@ class ProtocolHTTP : public Protocol {
         static Router::Ptr Create();
 
         Router();
+        Router(const std::string &root_url);
         ~Router();
         bool CallHandlerFor(const Request &request, Response *response);
         bool AddHandlerFor(const std::string &url, const Functor &functor);

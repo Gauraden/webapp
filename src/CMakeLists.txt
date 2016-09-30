@@ -16,5 +16,6 @@ add_definitions(
 include_directories("back-end")
 
 add_subdirectory("back-end")
+add_subdirectory("front-end")
 add_subdirectory("server")
 add_subdirectory("test")

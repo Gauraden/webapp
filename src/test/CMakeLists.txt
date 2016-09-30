@@ -1,6 +1,8 @@
 add_executable (webapp_units_tests
   units_tests.cpp
-  protocol_test.cpp
+  proto_test.cpp
+  com_test.cpp
+  com_http_test.cpp  
 )
 
 target_link_libraries (webapp_units_tests

@@ -1,12 +1,9 @@
 
-#define empty() __empty()
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <iostream>
-#include "../back-end/webapp_lib.hpp"
-// Помощник.
-// Данная структура будет передана каждому тесту!
-// Конструктор и деструктор обязательны!
+#include "webapp_lib.hpp"
+
 static const unsigned char kSp     = 0x20;
 static const unsigned char kCrLf[] = "\r\n";//{0x0D, 0x0A};
 static const unsigned char kOWS    = kSp;
@@ -24,11 +21,13 @@ static const std::string kContentType("multipart/mixed; boundary=\"" + kBoundary
 static const std::string kContentEncoding("gzip");
 static const std::string kContentLanguage("mi, en");
 static const std::string kContentLocation("/hello.txt");
-static const std::string kContentLength("3495");
+//static const std::string kContentLength("3495");
 static const std::string kMessageTitle("Привет мир!\nHello world!");
 static const std::string kDestAddress("brutal-vasya@example.com");
 static const std::string kAttachedFile1("the image must be here");
-
+// Помощник.
+// Данная структура будет передана каждому тесту!
+// Конструктор и деструктор обязательны!
 struct ProtocolTestFixture {
   struct Packet {
     Packet& AddStartLine(const std::string &method,
@@ -303,6 +302,9 @@ BOOST_AUTO_TEST_CASE(HttpUriAuthorityTest) {
 
 BOOST_AUTO_TEST_CASE(HttpUriPathTest) {
   webapp::ProtocolHTTP::Uri uri;
+  BOOST_CHECK(uri.ParseVal("http://google.com/"));
+  BOOST_CHECK(uri.get_path().size() == 0);
+
   BOOST_CHECK(not uri.ParseVal("http://google.com/node0 /node1/node2"));
   BOOST_CHECK(uri.get_path().size() == 0);
 
@@ -735,8 +737,8 @@ BOOST_AUTO_TEST_CASE(ProtocolHTTPResponseSourceFromStreamTest) {
 
   s_str_1 << kStr1;
 
-  webapp::ProtocolHTTP::Response::SourceFromStream s_src_0(s_str_0);
-  webapp::ProtocolHTTP::Response::SourceFromStream s_src_1(s_str_1);
+  webapp::ProtocolHTTP::Response::SourceFromStream s_src_0(&s_str_0);
+  webapp::ProtocolHTTP::Response::SourceFromStream s_src_1(&s_str_1);
   // проверка данных из пустого потока
   BOOST_CHECK(not s_src_0.IsAvailable());
   BOOST_CHECK(s_src_0.Size() == 0);

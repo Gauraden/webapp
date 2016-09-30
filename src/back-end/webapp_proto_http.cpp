@@ -10,6 +10,7 @@
 
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
 
 namespace webapp {
 
@@ -292,6 +293,10 @@ bool ProtocolHTTP::Uri::CheckPath(const std::string &val) {
       off = kCrosshatch;
     }
     encoded_str = val.substr(get_offset() + 1, off - get_offset() - 1);
+    if (encoded_str.size() == 0) {
+      set_offset(off);
+      continue;
+    }
     if (not Validator(encoded_str, [](Validator &v) -> bool {
         return v.PathSegments();
       }).Result()) {
@@ -494,7 +499,7 @@ void ProtocolHTTP::Request::Field::operator= (const Field &src) {
 
 template <>
 bool ProtocolHTTP::Request::Field::get_value(std::string *out) const {
-  if (IsNull()) {
+  if (IsNull() || out == 0) {
     return false;
   }
   return _data->value->operator ()(out);
@@ -502,10 +507,46 @@ bool ProtocolHTTP::Request::Field::get_value(std::string *out) const {
 
 template <>
 bool ProtocolHTTP::Request::Field::get_value(std::ostream *out) const {
-  if (IsNull()) {
+  if (IsNull() || out == 0) {
     return false;
   }
   return _data->value->operator ()(out);
+}
+
+template <>
+bool ProtocolHTTP::Request::Field::get_value(double *out) const {
+  std::string out_str;
+  if (out == 0 || not get_value(&out_str)) {
+    return false;
+  }
+  *out = atof(out_str.c_str());
+  return true;
+}
+
+template <>
+bool ProtocolHTTP::Request::Field::get_value(long *out) const {
+  std::string out_str;
+  if (out == 0 || not get_value(&out_str)) {
+    return false;
+  }
+  *out = atol(out_str.c_str());
+  return true;
+}
+
+static
+bool ParseBoolValue(const std::string &val) {
+  using namespace boost;
+  return regex_match(val.begin(), val.end(), regex("true")) ? true : false;
+}
+
+template <>
+bool ProtocolHTTP::Request::Field::get_value(bool *out) const {
+  std::string out_str;
+  if (out == 0 || not get_value(&out_str)) {
+    return false;
+  }
+  *out = ParseBoolValue(out_str);
+  return true;
 }
 
 const ProtocolHTTP::Content::Type& ProtocolHTTP::Request::Field::get_type() const {
@@ -581,7 +622,7 @@ struct ProtocolHTTP::Request::Field::StorageInMem::Container {
   class Segment {
     public:
       typedef std::list<Segment> List;
-      Segment(const Byte *_data, USize    _size)
+      Segment(const Byte *_data, USize _size)
           : size(_size),
             data(new Byte[_size]) {
         memcpy(data, _data, sizeof(Byte) * size);
@@ -601,7 +642,7 @@ struct ProtocolHTTP::Request::Field::StorageInMem::Container {
     segments.clear();
   }
 
-  void AppendData(const Byte *_data, USize    _size) {
+  void AppendData(const Byte *_data, USize _size) {
     segments.emplace_back(_data, _size);
     size += _size;
   }
@@ -748,14 +789,53 @@ const std::string& ProtocolHTTP::Request::Get(const std::string &name) const {
 }
 
 template <>
+std::string ProtocolHTTP::Request::Get(const std::string &name,
+                                       const std::string &def_val) const {
+  const std::string &kVal = Get(name);
+  if (kVal.size() == 0) {
+    return def_val;
+  }
+  return kVal;
+}
+
+template <>
 int ProtocolHTTP::Request::Get(const std::string &name,
                                const int         &def_val) const {
-  static const std::string kNullStr("0");
   const std::string &kVal = Get(name);
   if (kVal.size() == 0) {
     return def_val;
   }
   return atol(kVal.c_str());
+}
+
+template <>
+int64_t ProtocolHTTP::Request::Get(const std::string &name,
+                                   const int64_t     &def_val) const {
+  const std::string &kVal = Get(name);
+  if (kVal.size() == 0) {
+    return def_val;
+  }
+  return atoll(kVal.c_str());
+}
+
+template <>
+double ProtocolHTTP::Request::Get(const std::string &name,
+                                  const double      &def_val) const {
+  const std::string &kVal = Get(name);
+  if (kVal.size() == 0) {
+    return def_val;
+  }
+  return atof(kVal.c_str());
+}
+
+template <>
+bool ProtocolHTTP::Request::Get(const std::string &name,
+                                const bool        &def_val) const {
+  const std::string &kVal = Get(name);
+  if (kVal.size() == 0) {
+    return def_val;
+  }
+  return ParseBoolValue(kVal);
 }
 
 const ProtocolHTTP::Request::Field* ProtocolHTTP::Request::Post(
@@ -1012,9 +1092,15 @@ ProtocolHTTP::Response::SourceFromStream::SourceFromStream(const std::string &sr
   _buff_size = src.size();
 }
 
-ProtocolHTTP::Response::SourceFromStream::SourceFromStream(const std::stringstream &src)
+ProtocolHTTP::Response::SourceFromStream::SourceFromStream(std::stringstream *src)
     : _buff_size(0) {
-  _buff.str(src.str());
+  if (src == 0) {
+    return;
+  }
+  // TODO: gcc-4.9 не поддерживает это
+  //_buff.swap(*src);
+  //_buff = *src;
+  _buff.str(src->str());
   _buff.seekg(0, std::ios_base::end);
   _buff_size = _buff.tellg();
   _buff.seekg(0, std::ios_base::beg);
@@ -1201,6 +1287,10 @@ ProtocolHTTP::CacheControl& ProtocolHTTP::Response::UseCacheControl() {
   return _state->header.cache_control;
 }
 
+const ProtocolHTTP::Header& ProtocolHTTP::Response::GetHeader() const {
+  return _state->header;
+}
+
 void ProtocolHTTP::Response::SetHeader(Code status_id) {
   _state->status_id = status_id;
   _state->header    = GetHeaderForText("", "");
@@ -1228,6 +1318,17 @@ void ProtocolHTTP::Response::SetBody(const std::string &src) {
   }
   _state->src_body.reset(new SourceFromStream(src));
   _state->header.content.length = src.size();
+  SetupHeader(_state);
+}
+
+void ProtocolHTTP::Response::SetBody(std::stringstream *src) {
+  if (_state->status_id == k404) {
+    SetHeader(k200, GetHeaderForText("html", ""));
+  }
+  if (src != 0) {
+    _state->src_body.reset(new SourceFromStream(src));
+    _state->header.content.length = _state->src_body->Size();
+  }
   SetupHeader(_state);
 }
 
@@ -1286,20 +1387,35 @@ struct ProtocolHTTP::Router::State {
     Map                                children;
   };
 
-  Node nodes;
+  Node      nodes;
+  Uri::Path root_url;
 };
 
 ProtocolHTTP::Router::Router() {
   _state = new State();
 }
 
+ProtocolHTTP::Router::Router(const std::string &root_url) {
+  Uri u;
+  u.ParseVal(root_url);
+  _state = new State();
+  _state->root_url = u.get_path();
+}
+
 ProtocolHTTP::Router::~Router() {
   delete _state;
 }
 
+static
+const ProtocolHTTP::Uri::Path& SelectPath(const ProtocolHTTP::Uri::Path &path_0,
+                                          const ProtocolHTTP::Uri::Path &path_1) {
+  return path_0.size() > 0 ? path_0 : path_1;
+}
+
 bool ProtocolHTTP::Router::CallHandlerFor(const Request &request,
                                           Response      *response) {
-  const Uri::Path &kPath = request.GetHeader().line.target.get_path();
+  const Uri::Path &kPath = SelectPath(request.GetHeader().line.target.get_path(),
+                                      _state->root_url);
   Uri::Path::const_iterator path_it = kPath.begin();
   State::Node *node_it = &_state->nodes;
   Functor     *handler = 0;

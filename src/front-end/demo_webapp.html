@@ -1,0 +1,101 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/static/third-party/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/third-party/bootstrap/css/bootstrap-theme.min.css">
+    <script src="/static/third-party/jquery-3.1.0.min.js"></script>
+    <script src="/static/third-party/bootstrap/js/bootstrap.min.js"></script>
+    
+    <link rel="stylesheet" href="/static/css/widgets.css">
+    <script src="/static/core.js"></script>
+    <script src="/static/widgets/ui_panel.js"></script>
+    <script src="/static/widgets/ui_table.js"></script>
+    <script src="/static/widgets/ui_file_dialog.js"></script>
+    <script src="/static/widgets/ui_concept.js"></script>
+    <script src="/static/widgets/ui_invitation.js"></script>
+  </head>
+  <webapp>
+    <!-- Стили оформления виджетов-->
+    <ui_style name="demo_style">
+      <ui_file_dialog>
+        <base_style>table table-bordered table-hover</base_style>
+        <style_of_dir>success</style_of_dir>
+        <nav_button_style>btn btn-default</nav_button_style>
+        <path_style>breadcrumb</path_style>
+      </ui_file_dialog>
+      
+      <ui_panel>
+        <!--<base_style>navbar navbar-inverse</base_style>-->
+        <base_style>navbar navbar-default navbar-fixed-bottom</base_style>
+        <nav_button_style>nav navbar-nav</nav_button_style>
+        <menu_item_active>active</menu_item_active>
+      </ui_panel>
+      
+      <ui_table>
+        <base_style>table table-bordered table-hover</base_style>
+      </ui_table>
+      
+      <ui_concept>
+        <base_style>panel panel-default container-fluid</base_style>
+        <body_style>panel-body</body_style>
+        <title_style>panel-title col-sm-9</title_style>
+        <ctl_panel_style>panel-heading row navbar-fixed-top</ctl_panel_style>
+        <nav_panel_style>btn-group col-sm-3</nav_panel_style>
+        <nav_panel_button_style>btn btn-default</nav_panel_button_style>
+      </ui_concept>
+      
+      <ui_invitation>
+        <base_style>well well-lg text-center</base_style>
+      </ui_invitation>
+    </ui_style>
+    <!-- Макеты, для настройки отображения частей интерфейса -->
+    <ui_layout name="demo_layout_0">
+      <ui_panel name="demo_panel">
+        <button_0>
+          <label>Макет №0</label>
+          <action>this.changeLayout("demo_layout_0")</action>
+        </button_0>
+        <button_1>
+          <label>Макет №1</label>
+          <action>this.changeLayout("demo_layout_1")</action>
+        </button_1>
+      </ui_panel>
+      <ui_concept name="demo_concept_0">
+        <stage_0 >
+          <ui_invitation>
+            <text>Открыть файл</text>
+          </ui_invitation>
+        </stage_0>
+        <stage_1>
+          <ui_file_dialog name="demo_file_dialog">
+            <title>Открыть файл</title>
+          </ui_file_dialog>
+        </stage_1>
+        <stage_2>
+          <ui_table name="demo_table_0">
+            <title>Демонстрационная таблица №0</title>
+          </ui_table>
+        </stage_2>
+      </ui_concept>
+    </ui_layout>
+    
+    <ui_layout name="demo_layout_1">
+      <ui_panel name="demo_panel">
+      </ui_panel>
+      <ui_table name="demo_table_1">
+      </ui_table>
+    </ui_layout>
+    <!--
+      Главный блок настройки пользовательского интерфейса.
+      Включение стиля, макета и др. опций, для базового
+      интерфейса.
+    -->
+    <ui_setup>
+      <ui_output use="ui_body"></ui_output>
+      <ui_style use="demo_style"></ui_style>
+      <ui_layout use="demo_layout_0"></ui_layout>
+    </ui_setup>    
+  </webapp>
+  <body id="ui_body" onload="RunWebAppUI()">
+  </body>
+</html>
