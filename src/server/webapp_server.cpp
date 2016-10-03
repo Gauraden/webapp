@@ -40,6 +40,12 @@ class TestDataIf : public webapp::ctl::DataIFace {
     Handler _data_hndl;
 };
 
+class FileManager {
+  public:
+    FileManager() {
+    }
+};
+
 static
 const std::string& Num2Str(unsigned num) {
   static std::string res;

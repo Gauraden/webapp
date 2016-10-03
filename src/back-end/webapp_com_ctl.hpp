@@ -54,6 +54,46 @@ class DataIFace {
 
 class Table : public Com {
   public:
+
+    class Request {
+      public:
+        typedef std::map<std::string, bool>  Fields;
+        typedef std::pair<std::string, bool> Field;
+
+        class Condition {
+          public:
+            typedef std::list<Condition> List;
+
+            enum Type {
+              kUnknown,
+              kEq,    // ==
+              kLt,    // <
+              kGt,    // >
+              kEqOrLt,// <=
+              kEqOrGt // >=
+            };
+
+            Condition(const std::string &cond_text);
+
+            std::string field;
+            std::string value;
+            Type        logic;
+        };
+
+        Request(const Com::Input &in);
+        bool NeedToSelectThis(const std::string &field) const;
+        const Condition::List& SelectWhere() const;
+      private:
+        Fields          _select;
+        Condition::List _where;
+    };
+
+    typedef Process (*Handler)(const std::string &);
+
+    struct Action {
+      static const char kSelect[];
+    };
+
     Table(const std::string &name);
     void SetDataInterface(DataIFace::Ptr data_if);
   private:

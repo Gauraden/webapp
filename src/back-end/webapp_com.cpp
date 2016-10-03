@@ -168,6 +168,9 @@ bool Com::HandleData(const Input &in) {
 bool Com::HandleAction(const std::string &name, const Input &in) {
   auto act_it = _actions.find(name);
   if (act_it == _actions.end()) {
+    // Вызываем последнее запомненное действие "action", в случае если оно
+    // установило состояние InWork. Предполагается что действие занято
+    // выполнением длительного процесса.
     if (_process_state.status == Process::kInWork &&
         _process_state.action != _actions.end()) {
       act_it = _process_state.action;
@@ -208,6 +211,8 @@ bool Com::Publish(Output *out) {
   if (_process_state.need_to_notify) {
     _process_state.need_to_notify = false;
     pub_res = pub_res && Com::PublishProcessState(out);
+    // в случае когда идёт выполнение длительного процесса, компонент "COM" не
+    // публикует свои данные
     if (_process_state.status == Process::kInWork) {
       return pub_res;
     }

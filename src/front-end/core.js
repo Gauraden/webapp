@@ -45,7 +45,7 @@ class Com {
     if (this._notifier === undefined) {
       this._notifier = document.createElement("div");
       this._notifier.className = "notifier";
-      this._notifier.style.top = `${this._node.style.top + 10}px`;
+      //this._notifier.style.top = `${this._node.style.top + 10}px`;
       this._node.appendChild(this._notifier);
     }
     let progress = "...";

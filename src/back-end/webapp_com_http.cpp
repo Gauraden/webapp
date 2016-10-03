@@ -116,7 +116,7 @@ bool Output::MakeResponse(ProtocolHTTP::Response *out) {
     return false;
   }
   out->SetHeader(ProtocolHTTP::k200, ProtocolHTTP::Response::GetHeaderForJSON());
-  _data << "}";//(_use_comma ? "}" : " ");
+  _data << "}";
   out->SetBody(&_data);
   return true;
 }
