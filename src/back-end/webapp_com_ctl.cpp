@@ -188,7 +188,10 @@ void ParseRequestWhere(const std::string               &in,
   for (size_t from_off = 0; from_off != std::string::npos;) {
     from_off += from_off > 0 ? 2 : 0;
     size_t amper = in.find_first_of("&&", from_off);
-    out->emplace_back(in.substr(from_off, amper - from_off));
+    //out->emplace_back(in.substr(from_off, amper - from_off));
+    out->push_back(Table::Request::Condition(
+      in.substr(from_off, amper - from_off))
+    );
     from_off = amper;
   }
 }

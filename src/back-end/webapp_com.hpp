@@ -136,12 +136,8 @@ class Com::Group : public Com {
 
     template <typename ComType>
     ComType& AddCom(const std::string &name) {
-      return static_cast<ComType&>(
-        *_components.emplace(
-          name,
-          Com::Ptr(new ComType(name))
-        ).first->second
-      );
+      auto it = _components.insert(Pair(name, Com::Ptr(new ComType(name))));
+      return static_cast<ComType&>(*it.first->second);
     }
 
     virtual Com::Ptr FindCom(const std::string &path);
