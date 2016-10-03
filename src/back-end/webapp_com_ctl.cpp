@@ -39,7 +39,7 @@ static
 std::string GetPathRelativeTo(boost::filesystem::path &root,
                               boost::filesystem::path &src) {
   auto src_it = src.begin();
-  for (auto root_it: root) {
+  for (auto root_it = root.begin(); root_it != root.end(); root_it++) {
     src_it++;
   }
   std::string res;

@@ -74,8 +74,8 @@ bool Com::Group::PublishMembers(Output *out) {
   if (out == 0) {
     return false;
   }
-  for (auto &comp : _components) {
-    comp.second->Publish(out);
+  for (auto comp = _components.begin(); comp != _components.end(); comp++) {
+    comp->second->Publish(out);
   }
   return true;
 }
