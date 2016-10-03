@@ -524,7 +524,7 @@ bool ProtocolHTTP::Request::Field::get_value(double *out) const {
 }
 
 template <>
-bool ProtocolHTTP::Request::Field::get_value(long *out) const {
+bool ProtocolHTTP::Request::Field::get_value(int64_t *out) const {
   std::string out_str;
   if (out == 0 || not get_value(&out_str)) {
     return false;
