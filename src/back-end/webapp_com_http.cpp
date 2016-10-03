@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
+#include <limits>
 #include <boost/regex.hpp>
 
 namespace webapp {
@@ -45,7 +46,7 @@ ResType ReadValFrom(const std::string           &name,
 }
 
 Com::Real Input::GetReal(const std::string &name) const {
-  static const Com::Real kNan = std::nan("");
+  static const Com::Real kNan = std::numeric_limits<Com::Real>::quiet_NaN(); //std::nan("");
   return ReadValFrom(name, _http_req, kNan);
 }
 
@@ -152,8 +153,8 @@ ProtocolHTTP::Router::Ptr Manager::GetRouterFor(
       if (manager) {
         static const std::string kVoid;
         std::string com_path;
-        for (auto path_node: path) {
-          com_path += (com_path.size() > 0 ? "/" : kVoid) + path_node;
+        for (auto path_node = path.begin(); path_node != path.end(); path_node++) {
+          com_path += (com_path.size() > 0 ? "/" : kVoid) + *path_node;
         }
         manager->HandleInput(com_path, in, &out);
       }
