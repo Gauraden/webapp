@@ -99,7 +99,7 @@ class UIFileDialog extends Com {
         }
         let path = `${this._selected_file.path}/${this._selected_file.name}`;
         this.sendAction("open", {"file": path});
-        //this.onOpen();
+        this.onOpen();
       }
     });
     

@@ -46,15 +46,6 @@ class DataIFace {
   public:
     typedef boost::shared_ptr<DataIFace> Ptr;
 
-    DataIFace();
-    virtual ~DataIFace();
-    virtual void PublishData(Com::Output *out) = 0;
-    virtual void PublishMetaData(Com::Output *out) = 0;
-};
-
-class Table : public Com {
-  public:
-
     class Request {
       public:
         typedef std::map<std::string, bool>  Fields;
@@ -80,7 +71,8 @@ class Table : public Com {
             Type        logic;
         };
 
-        Request(const Com::Input &in);
+        Request();
+        void ParseInData(const Com::Input &in);
         bool NeedToSelectThis(const std::string &field) const;
         const Condition::List& SelectWhere() const;
       private:
@@ -88,10 +80,23 @@ class Table : public Com {
         Condition::List _where;
     };
 
-    typedef Process (*Handler)(const std::string &);
+    DataIFace();
+    virtual ~DataIFace();
+    virtual Com::Process HandleData(const Request &request) = 0;
+    virtual void PublishData(Com::Output *out) = 0;
+    virtual void PublishMetaData(Com::Output *out) = 0;
+    Com::Process ParseRequest(const Com::Input &in);
+  private:
+    Request _request;
+};
+
+class Table : public Com {
+  public:
+    //typedef Process (*Handler)(const std::string &);
 
     struct Action {
       static const char kSelect[];
+      static const char kSync[];
     };
 
     Table(const std::string &name);

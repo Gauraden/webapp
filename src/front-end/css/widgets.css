@@ -6,3 +6,13 @@ body {
   position: absolute;
   border  : 1px solid #000000;
 }
+
+.form_row {
+  padding-left: 20px;
+}
+
+.form_field {
+  font-size: 14pt;
+  display: inline;
+  float: left;
+}

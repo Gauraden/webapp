@@ -161,9 +161,14 @@ DataIFace::DataIFace() {
 
 DataIFace::~DataIFace() {
 }
+
+Com::Process DataIFace::DataIFace::ParseRequest(const Com::Input &in) {
+  _request.ParseInData(in);
+  return HandleData(_request);
+}
 // Table::Request --------------------------------------------------------------
 static
-void ParseRequestSelect(const std::string &in, Table::Request::Fields *out) {
+void ParseRequestSelect(const std::string &in, DataIFace::Request::Fields *out) {
   if (out == 0) {
     return;
   }
@@ -172,7 +177,7 @@ void ParseRequestSelect(const std::string &in, Table::Request::Fields *out) {
     from_off += from_off > 0 ? 1 : 0;
     size_t comma = in.find_first_of(',', from_off);
     out->insert(
-      Table::Request::Field(in.substr(from_off, comma - from_off), true)
+      DataIFace::Request::Field(in.substr(from_off, comma - from_off), true)
     );
     from_off = comma;
   }
@@ -180,7 +185,7 @@ void ParseRequestSelect(const std::string &in, Table::Request::Fields *out) {
 
 static
 void ParseRequestWhere(const std::string               &in,
-                       Table::Request::Condition::List *out) {
+                       DataIFace::Request::Condition::List *out) {
   if (out == 0) {
     return;
   }
@@ -189,30 +194,37 @@ void ParseRequestWhere(const std::string               &in,
     from_off += from_off > 0 ? 2 : 0;
     size_t amper = in.find_first_of("&&", from_off);
     //out->emplace_back(in.substr(from_off, amper - from_off));
-    out->push_back(Table::Request::Condition(
+    out->push_back(DataIFace::Request::Condition(
       in.substr(from_off, amper - from_off))
     );
     from_off = amper;
   }
 }
 
-Table::Request::Request(const Com::Input &in) {
-  ParseRequestSelect(in.GetString("fields"), &_select);
-  ParseRequestWhere(in.GetString("where"),   &_where);
+DataIFace::Request::Request() {
 }
 
-bool Table::Request::NeedToSelectThis(const std::string &field) const {
+void DataIFace::Request::ParseInData(const Com::Input &in) {
+  if (in.HasCell("fields")) {
+    ParseRequestSelect(in.GetString("fields"), &_select);
+  }
+  if (in.HasCell("where")) {
+    ParseRequestWhere(in.GetString("where"), &_where);
+  }
+}
+
+bool DataIFace::Request::NeedToSelectThis(const std::string &field) const {
   auto f_it = _select.find(field);
   return f_it != _select.end();
 }
 
-const Table::Request::Condition::List& Table::Request::SelectWhere() const {
+const DataIFace::Request::Condition::List& DataIFace::Request::SelectWhere() const {
   return _where;
 }
-// Table::Request::Condition ---------------------------------------------------
+// DataIFace::Request::Condition ---------------------------------------------------
 static
-Table::Request::Condition::Type ParseConditionType(const std::string &in) {
-  typedef Table::Request::Condition::Type   Type;
+DataIFace::Request::Condition::Type ParseConditionType(const std::string &in) {
+  typedef DataIFace::Request::Condition::Type   Type;
   typedef enum_serializer::Collection<Type> CollectionOfTypes;
 
   static CollectionOfTypes cond_type([](CollectionOfTypes &list) {
@@ -227,7 +239,7 @@ Table::Request::Condition::Type ParseConditionType(const std::string &in) {
   return out;
 }
 
-Table::Request::Condition::Condition(const std::string &cond_text)
+DataIFace::Request::Condition::Condition(const std::string &cond_text)
     : logic(kUnknown) {
   using namespace boost;
   match_results<std::string::const_iterator> what;
@@ -246,12 +258,16 @@ Table::Request::Condition::Condition(const std::string &cond_text)
 }
 // Table -----------------------------------------------------------------------
 const char Table::Action::kSelect[] = "select";
+const char Table::Action::kSync[]   = "sync";
 
 Table::Table(const std::string &name): Com(name, "table") {
+  RegisterAction(Action::kSync, [](const Com::Input &in, Com &obj)->Process {
+    Table &com = static_cast<Table&>(obj);
+    return com._data_if->ParseRequest(in);
+  });
   RegisterAction(Action::kSelect, [](const Com::Input &in, Com &obj)->Process {
     Table &com = static_cast<Table&>(obj);
-    //return com.GoTo(in.GetString("file"));
-    return Process();
+    return com._data_if->ParseRequest(in);
   });
 }
 

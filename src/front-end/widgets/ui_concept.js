@@ -20,7 +20,8 @@ class UIConcept extends Com {
     this._control_node.appendChild(this._nav_node);
     this._node.appendChild(this._control_node);
     this._node.appendChild(this._stage_node);
-    this._prepareStages(param);
+    
+    this._prepareStages(this._param);
     
     this._stage_node.className   = style.BODY_STYLE;
     this._stage_title.className  = style.TITLE_STYLE;
@@ -63,33 +64,19 @@ class UIConcept extends Com {
   }
   
   _prepareStages(param) {
-    let style_name = widget.setup.UI_STYLE;
-    if (style_name === undefined) {
-      return false;
-    }
-    let style = widget.styles[style_name];
     for (let stage_id in param) {
       let stage = param[stage_id];
-      for (let com_name in stage) {
-        let com_param = stage[com_name];
-        let com_style = style[com_name];
-        let com_obj   = widget.Constructor(
-          com_name,
-          com_param,
-          com_style
-        );
-        if (com_obj !== undefined) {
-          com_obj.onOpen   = this.switchToNextStage();
-          com_obj.onClose  = this.switchToPrevStage();
-          com_obj.onUpdate = this.updateCurrentStage();
-          this._stages.push(com_obj);
-          this._stage_node.appendChild(com_obj.html_node);
-          if (this._stages.length > 1) {
-            com_obj.html_node.style.display = "none";
-          }
-        }
-      }
-    }    
+      widget.ConstructCOM(stage, (com_obj) => {
+        com_obj.onOpen   = this.switchToNextStage();
+        com_obj.onClose  = this.switchToPrevStage();
+        com_obj.onUpdate = this.updateCurrentStage();
+        this._stages.push(com_obj);
+        this._stage_node.appendChild(com_obj.html_node);
+        if (this._stages.length > 1) {
+          com_obj.html_node.style.display = "none";
+        }        
+      });
+    }
   } // _prepareStages
 
   _switchStage(from_id, step) {

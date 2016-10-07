@@ -22,7 +22,7 @@ class DemoInput : public com::Input {
     }
 
     virtual bool HasCell (const std::string &) const {
-      return false;
+      return true;
     }
 
     virtual com::Real GetReal (const std::string &) const {
@@ -54,7 +54,7 @@ BOOST_FIXTURE_TEST_SUITE(ComCtlTestSuite, ComCtlTestFixture)
 BOOST_AUTO_TEST_CASE(TestTableRequestCondition) {
   using namespace webapp::ctl;
 
-  typedef Table::Request::Condition Cond;
+  typedef DataIFace::Request::Condition Cond;
 
   Cond con_0("field_0=10");
   Cond con_1("field_1<11");
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(TestTableRequestCondition) {
 
 BOOST_AUTO_TEST_CASE(TestTableRequestSelect) {
   using namespace webapp::ctl;
-  typedef Table::Request Req;
+  typedef DataIFace::Request Req;
 
   const std::string kFields[] = {
     "field_0",
@@ -99,7 +99,8 @@ BOOST_AUTO_TEST_CASE(TestTableRequestSelect) {
     in.fields += (fid == 0 ? "" : ",") + kFields[fid];
   }
 
-  Req req(in);
+  Req req;
+  req.ParseInData(in);
   for (auto fid = 0; fid < 3; fid++) {
     BOOST_CHECK(req.NeedToSelectThis(kFields[fid]));
   }
@@ -107,7 +108,7 @@ BOOST_AUTO_TEST_CASE(TestTableRequestSelect) {
 
 BOOST_AUTO_TEST_CASE(TestTableRequestWhere) {
   using namespace webapp::ctl;
-  typedef Table::Request Req;
+  typedef DataIFace::Request Req;
 
   const std::string kWhere[] = {
     "field_0==9",
@@ -125,7 +126,8 @@ BOOST_AUTO_TEST_CASE(TestTableRequestWhere) {
     conds.emplace_back(kWhere[fid]);
   }
 
-  Req req(in);
+  Req req;
+  req.ParseInData(in);
   auto req_where = req.SelectWhere();
   auto cond_it   = conds.begin();
   for (auto it = req_where.begin();

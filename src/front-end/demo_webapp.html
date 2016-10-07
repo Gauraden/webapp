@@ -3,8 +3,11 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="/static/third-party/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/third-party/bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/static/third-party/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
     <script src="/static/third-party/jquery-3.1.0.min.js"></script>
+    <script src="/static/third-party/moment-with-locales.min.js"></script>
     <script src="/static/third-party/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/third-party/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
     
     <link rel="stylesheet" href="/static/css/widgets.css">
     <script src="/static/core.js"></script>
@@ -13,6 +16,8 @@
     <script src="/static/widgets/ui_file_dialog.js"></script>
     <script src="/static/widgets/ui_concept.js"></script>
     <script src="/static/widgets/ui_invitation.js"></script>
+    <script src="/static/widgets/ui_date_range.js"></script>
+    <script src="/static/widgets/ui_form.js"></script>
   </head>
   <webapp>
     <!-- Стили оформления виджетов-->
@@ -47,6 +52,17 @@
       <ui_invitation>
         <base_style>well well-lg text-center</base_style>
       </ui_invitation>
+      
+      <ui_date_range>
+        <base_style>row form_row</base_style>
+        <label_cell_style>form_field</label_cell_style>
+        <input_cell_style>col-sm-3</input_cell_style>
+        <input_style>form-control</input_style>
+      </ui_date_range>
+      
+      <ui_form>
+        <submit_style>btn btn-success</submit_style>
+      </ui_form>
     </ui_style>
     <!-- Макеты, для настройки отображения частей интерфейса -->
     <ui_layout name="demo_layout_0">
@@ -62,7 +78,7 @@
       </ui_panel>
       <ui_concept name="demo_concept_0">
         <stage_0 >
-          <ui_invitation>
+          <ui_invitation name="demo_invitation">
             <text>Открыть файл</text>
           </ui_invitation>
         </stage_0>
@@ -83,6 +99,13 @@
       <ui_panel name="demo_panel">
       </ui_panel>
       <ui_table name="demo_table_1">
+        <title>Демонстрационная таблица №1</title>
+        <ui_form_0 name="demo_form">
+          <ui_date_range name="demo_date_range">
+            <label_from>Диапазон:</label_from>
+            <label_to>-</label_to>
+          </ui_date_range>
+        </ui_form_0>
       </ui_table>
     </ui_layout>
     <!--

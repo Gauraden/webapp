@@ -64,13 +64,20 @@ class Com {
     this._notifier = undefined;
   }
   
+  encodeString(str) {
+    
+  }
+  
   sendAction(action = "", args = {}) {
     let request = "";
     if (action && action !== "") {
       request = "?action=" + action;
       if (args) {
         for (let name in args) {
-          request += `&${name}=${args[name]}`;
+          let value = args[name].replace(/([=&]{1,1})/g, (str, templ) => { 
+            return "%" + templ.charCodeAt(0).toString(16);
+          });
+          request += `&${name}=${value}`;
         }
       }
     }
@@ -122,7 +129,7 @@ let widget = {
       sibling.parentNode.removeChild(sibling);
     }
   },
-  "ParseUiComParam": (cont, node) => {
+  "ParseUiComParam": (cont, node, parent_name) => {
     let param = node.firstChild;
     for (; param !== null; param = param.nextSibling) {
       if (param.nodeType != ELEMENT_NODE_ID) {
@@ -132,6 +139,9 @@ let widget = {
       let name       = param.getAttribute("name");
       let param_cont = {};
       if (name !== null) {
+        if (parent_name && parent_name.constructor === String) {
+          name = `${parent_name}/${name}`;
+        }
         param_cont[NAME_ATTR] = name;
       }
       if (child.length == 0) {
@@ -143,7 +153,7 @@ let widget = {
         cont[param.nodeName] = param_cont;
         continue;
       }
-      widget.ParseUiComParam(param_cont, param);
+      widget.ParseUiComParam(param_cont, param, name);
       cont[param.nodeName] = param_cont;
     }
   },
@@ -178,41 +188,61 @@ let widget = {
         let ui_com_type  = ui_com.nodeName;
         let ui_com_name  = ui_com.getAttribute("name");
         widget.layouts[name][ui_com_type] = {};
-        widget.ParseUiComParam(widget.layouts[name][ui_com_type], ui_com);
+        widget.ParseUiComParam(widget.layouts[name][ui_com_type],
+          ui_com,
+          ui_com_name
+        );
         widget.layouts[name][ui_com_type][NAME_ATTR] = ui_com_name;
+      }
+    }
+  },
+  "ConstructCOM": (layout, com_handler) => {
+    let style_name = widget.setup.UI_STYLE;
+    let style      = widget.styles[style_name];
+    if (style === undefined) {
+      console.log(`Error: ui style \"${style_name}\" was not found!`);
+      return;
+    }
+    for (let com_name in layout) {
+      let splited_name = com_name.split("_");
+      if (splited_name[0] !== "UI") {
+        continue;
+      }
+      let com_type = com_name;
+      if (splited_name[splited_name.length - 1].match(/([0-9]+)/)) {
+        splited_name.pop();
+        com_type = splited_name.join("_");
+      }      
+      let com_param = layout[com_name];
+      let com_style = style[com_type];
+      let com_obj = widget.Constructor(
+        com_type,
+        com_param,
+        com_style
+      );
+      if (com_obj     !== undefined &&
+          com_handler !== undefined) {
+        com_handler(com_obj);
       }
     }
   },
   "ConstructLayout": () => {
     let layout_out  = widget.setup.UI_OUTPUT;
     let layout_name = widget.setup.UI_LAYOUT;
-    let style_name  = widget.setup.UI_STYLE;
-    if (layout_out === undefined || 
-        layout_name === undefined ||
-        style_name === undefined) {
+    if (layout_out  === undefined || 
+        layout_name === undefined) {
       return false;
     }
-    let style  = widget.styles[style_name];
     let layout = widget.layouts[layout_name];
     let out    = document.getElementById(layout_out);
     if (layout === undefined || out === undefined) {
       return false;
     }
     out.innerHTML = "";
-    for (let com_name in layout) {
-      let com_param = layout[com_name];
-      let com_style = style[com_name];
-      let com_obj   = widget.Constructor(
-        com_name,
-        com_param,
-        com_style
-      );
-      if (com_obj === undefined) {
-        continue;
-      }
+    widget.ConstructCOM(layout, (com_obj) => {
       out.appendChild(com_obj.html_node);
-      com_obj.syncWithBackend();
-    }
+      com_obj.syncWithBackend();      
+    });
   },
   "SetupUI": () => {
     let webapp = document.getElementsByTagName("webapp")[0];
@@ -263,6 +293,12 @@ let widget = {
     },
     "UI_INVITATION": (name, param, style) => {
       return new UIInvitation(name, param, style);
+    },
+    "UI_DATE_RANGE": (name, param, style) => {
+      return new UIDateRange(name, param, style);
+    },
+    "UI_FORM": (name, param, style) => {
+      return new UIForm(name, param, style);
     }
   } // funcs
 }; // widget

@@ -8,6 +8,7 @@ add_library(webapp_lib
 )
 
 target_link_libraries (webapp_lib
+  boost_thread
   boost_system
   boost_filesystem
   boost_date_time

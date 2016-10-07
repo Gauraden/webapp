@@ -9,9 +9,22 @@
 #include "../back-end/webapp_com_http.hpp"
 #include "../back-end/webapp_com_ctl.hpp"
 
+#define BOOST_THREAD_PROVIDES_FUTURE
+#include <boost/thread.hpp>
+#include <boost/thread/future.hpp>
+
+static
+std::string AsyncDataSelect() {
+  for (unsigned i = 0; i < 2; i++) {
+    sleep(1);
+  }
+  return "hello from async data select";
+}
+
 class TestDataIf : public webapp::ctl::DataIFace {
   public:
-    typedef void (*Handler)(webapp::Com::Output*);
+    typedef std::string Data;
+    typedef void (*Handler)(const Data &data, webapp::Com::Output*);
 
     TestDataIf(Handler meta, Handler data)
         : webapp::ctl::DataIFace(),
@@ -20,15 +33,40 @@ class TestDataIf : public webapp::ctl::DataIFace {
     }
     virtual ~TestDataIf() {}
 
+    virtual webapp::Com::Process HandleData(const Request &req) {
+      using namespace boost;
+      typedef webapp::Com::Process Proc;
+      if (_data_future.get_state() == future_state::ready) {
+        _data = _data_future.get();
+        DataFuture tmp_f;
+        _data_future.swap(tmp_f);
+        return Proc(Proc::kFinished);
+      }
+      if (_data_future.get_state() == future_state::uninitialized) {
+        auto where    = req.SelectWhere();
+        auto where_it = where.begin();
+        for (; where_it != where.end(); where_it++) {
+          // DEBUG --------------------
+          std::cout << "DEBUG: " << __FUNCTION__ << ": " << __LINE__ << ": "
+                    << "cond: " << where_it->field << " AND "
+                                << where_it->value
+                    << std::endl;
+          // --------------------------
+        }
+        _data_future = boost::async(AsyncDataSelect);
+      }
+      return Proc(Proc::kInWork);
+    }
+
     virtual void PublishData(webapp::Com::Output *out) {
       if (_data_hndl != 0) {
-        _data_hndl(out);
+        _data_hndl(_data, out);
       }
     }
 
     virtual void PublishMetaData(webapp::Com::Output *out) {
       if (_meta_hndl != 0) {
-        _meta_hndl(out);
+        _meta_hndl(_data, out);
       }
     }
 
@@ -36,8 +74,12 @@ class TestDataIf : public webapp::ctl::DataIFace {
       return TestDataIf::Ptr(new TestDataIf(meta, data));
     }
   private:
-    Handler _meta_hndl;
-    Handler _data_hndl;
+    typedef boost::future<std::string> DataFuture;
+
+    Handler    _meta_hndl;
+    Handler    _data_hndl;
+    DataFuture _data_future;
+    Data       _data;
 };
 
 class FileManager {
@@ -59,12 +101,16 @@ const std::string& Num2Str(unsigned num) {
 }
 
 static
-void FillInTable(webapp::Com::Output *table, unsigned rows, unsigned cols) {
+void FillInTable(webapp::Com::Output *table,
+                 unsigned rows,
+                 unsigned cols,
+                 const TestDataIf::Data &data) {
   webapp::Com::Output::Scoped row;
   for (unsigned row_i = 0; row_i < rows; row_i++) {
     row.reset(table->Create());
     for (unsigned col_i = 0; col_i < cols; col_i++) {
-      row->Put("col_" + Num2Str(col_i), (webapp::Com::Integer)((row_i * 100) + col_i));
+      //row->Put("col_" + Num2Str(col_i), (webapp::Com::Integer)((row_i * 100) + col_i));
+      row->Put("col_" + Num2Str(col_i), data);
     }
     table->Append("row_" + Num2Str(row_i), *row);
   }
@@ -79,24 +125,25 @@ void InitDialogs(const std::string &root_dir, webapp::http::Manager &manager) {
          .SetRoot(root_dir)
          .SetMask(".+\\.csv")
          .SetOpenHandler([](const std::string &filename)->Com::Process {
-    static uint8_t req_num = 0;
-    req_num++;
-    if (req_num == 11) {
-      req_num = 1;
-    }
-    // DEBUG --------------------
-    std::cout << "DEBUG: " << __FUNCTION__ << ": " << __LINE__ << ": "
-              << "file: "    << filename << "; "
-              << "req_num: " << (unsigned)req_num << "; "
-              << std::endl;
-    // --------------------------
-    return Com::Process(req_num < 10 ? Com::Process::kInWork :
-                                       Com::Process::kFinished);
+    return Com::Process();
+//    static uint8_t req_num = 0;
+//    req_num++;
+//    if (req_num == 11) {
+//      req_num = 1;
+//    }
+//    // DEBUG --------------------
+//    std::cout << "DEBUG: " << __FUNCTION__ << ": " << __LINE__ << ": "
+//              << "file: "    << filename << "; "
+//              << "req_num: " << (unsigned)req_num << "; "
+//              << std::endl;
+//    // --------------------------
+//    return Com::Process(req_num < 10 ? Com::Process::kInWork :
+//                                       Com::Process::kFinished);
   });
 
   manager.AddCom<Table>("demo_table_0").SetDataInterface(TestDataIf::Create(
     // метаданные
-    [](Com::Output *out) {
+    [](const TestDataIf::Data &, Com::Output *out) {
       Com::Output::Scoped col_0(out->Create());
       Com::Output::Scoped col_1(out->Create());
 
@@ -107,13 +154,13 @@ void InitDialogs(const std::string &root_dir, webapp::http::Manager &manager) {
       out->Append("col_1", *col_1);
     },
     // данные
-    [](Com::Output *out) {
-      FillInTable(out, 10, 2);
+    [](const TestDataIf::Data &data, Com::Output *out) {
+      FillInTable(out, 10, 2, data);
     }
   ));
   manager.AddCom<Table>("demo_table_1").SetDataInterface(TestDataIf::Create(
     // метаданные
-    [](Com::Output *out) {
+    [](const TestDataIf::Data &, Com::Output *out) {
       Com::Output::Scoped col_0(out->Create());
       Com::Output::Scoped col_1(out->Create());
       Com::Output::Scoped col_2(out->Create());
@@ -127,8 +174,8 @@ void InitDialogs(const std::string &root_dir, webapp::http::Manager &manager) {
       out->Append("col_2", *col_2);
     },
     // данные
-    [](Com::Output *out) {
-      FillInTable(out, 20, 3);
+    [](const TestDataIf::Data &data, Com::Output *out) {
+      FillInTable(out, 20, 3, data);
     }
   ));
 }

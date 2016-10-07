@@ -1,0 +1,9 @@
+[submodule "src/third-party/bootstrap-datetimepicker"]
+	path = src/third-party/bootstrap-datetimepicker
+	url = https://github.com/Eonasdan/bootstrap-datetimepicker
+[submodule "src/third-party/jquery"]
+	path = src/third-party/jquery
+	url = https://github.com/jquery/jquery
+[submodule "src/third-party/moment"]
+	path = src/third-party/moment
+	url = https://github.com/moment/moment
