@@ -65,7 +65,9 @@ class Com {
   }
   
   encodeString(str) {
-    
+    return str.replace(/([=&]{1,1})/g, (str, templ) => { 
+      return "%" + templ.charCodeAt(0).toString(16);
+    });
   }
   
   sendAction(action = "", args = {}) {
@@ -74,9 +76,7 @@ class Com {
       request = "?action=" + action;
       if (args) {
         for (let name in args) {
-          let value = args[name].replace(/([=&]{1,1})/g, (str, templ) => { 
-            return "%" + templ.charCodeAt(0).toString(16);
-          });
+          let value = this.encodeString(args[name]);
           request += `&${name}=${value}`;
         }
       }

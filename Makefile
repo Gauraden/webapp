@@ -9,12 +9,29 @@ CMAKE = cmake ../src/ -DOUTPUT_DIR=$(OUTPUT_SUB_DIR) \
                       -DCMAKE_C_COMPILER=$(CMAKE_C_COMPILER) \
                       -DCMAKE_FIND_ROOT_PATH=$(CMAKE_FIND_ROOT_PATH)
 
-all: update_submodules build
+all: update_submodules build help
+
+help:
+	@echo " --- Помощь -------------------------------------------------------------------------------------"
+	@echo " * dependencies      - проверка наличия необходимых пакетов"
+	@echo " * build             - сборка библиотеки, демонстрационного сервера, тестов"
+	@echo " * build_jquery      - сборка JQuery"
+	@echo " * tests             - запуск юнит-тестов"
+	@echo " * install           - установка всех необходимых файлов, для веб приложения, в директорию output"
+	@echo " * update_submodules - обновление исходников сторонних проектов"
+
+dependencies:
+	$(shell [[ $(whereis -b npm) =~ ^npm:\ (.*)$ ]] || echo "Установите пакет NPM!" && exit 1)
+	$(shell [[ $(whereis -b grunt) =~ ^grunt:\ (.*)$ ]] && npm install -g grunt-cli)
 
 build:
 	@echo "--- Сборка ---------------------------"
 	@mkdir -p ./build ./output
 	@cd ./build/ && rm -rf ./* && $(CMAKE) && make && make install
+
+build_jquery:
+	@echo "--- Сборка JQuery --------------------"
+	@cd ./src/third-party/jquery && npm install && grunt
 
 tests:
 	@echo "--- Тестирование ---------------------"
