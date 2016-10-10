@@ -9,22 +9,18 @@ CMAKE = cmake ../src/ -DOUTPUT_DIR=$(OUTPUT_SUB_DIR) \
                       -DCMAKE_C_COMPILER=$(CMAKE_C_COMPILER) \
                       -DCMAKE_FIND_ROOT_PATH=$(CMAKE_FIND_ROOT_PATH)
 
-all: update_submodules build help
+all: build_bin help
 
 help:
 	@echo " --- Помощь -------------------------------------------------------------------------------------"
-	@echo " * dependencies      - проверка наличия необходимых пакетов"
-	@echo " * build             - сборка библиотеки, демонстрационного сервера, тестов"
+	@echo " * build_bin         - сборка библиотеки, демонстрационного сервера, тестов"
 	@echo " * build_jquery      - сборка JQuery"
 	@echo " * tests             - запуск юнит-тестов"
 	@echo " * install           - установка всех необходимых файлов, для веб приложения, в директорию output"
 	@echo " * update_submodules - обновление исходников сторонних проектов"
+	@echo " * dependencies      - проверка наличия необходимых пакетов"
 
-dependencies:
-	$(shell [[ $(whereis -b npm) =~ ^npm:\ (.*)$ ]] || echo "Установите пакет NPM!" && exit 1)
-	$(shell [[ $(whereis -b grunt) =~ ^grunt:\ (.*)$ ]] && npm install -g grunt-cli)
-
-build:
+build_bin:
 	@echo "--- Сборка ---------------------------"
 	@mkdir -p ./build ./output
 	@cd ./build/ && rm -rf ./* && $(CMAKE) && make && make install
@@ -45,3 +41,7 @@ update_submodules:
 	@echo "--- Обновление сторонних библиотек ---"
 	$(shell for subm in ./src/third-party/*; do [ -d "$subm" ] && [ ! -f "$subm/.git" ] && git submodule init && git submodule update; done)
 	@git submodule foreach git pull origin master
+
+dependencies:
+	$(shell [[ $(whereis -b npm) =~ ^npm:\ (.*)$ ]] || echo "Установите пакет NPM!" && exit 1)
+	$(shell [[ $(whereis -b grunt) =~ ^grunt:\ (.*)$ ]] && npm install -g grunt-cli)

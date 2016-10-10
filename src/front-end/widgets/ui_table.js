@@ -8,6 +8,7 @@ class UITable extends Com {
     }); // super
     this._forms      = [];
     this._node       = document.createElement("div");
+    this._forms_grp  = document.createElement("div");
     this._table      = document.createElement("table");
     this._table_head = document.createElement("thead");
     this._table_body = document.createElement("tbody");
@@ -16,9 +17,13 @@ class UITable extends Com {
     this._table.appendChild(this._table_body);
     this._table.className = style.BASE_STYLE;
     
-    this._setupForm(this._param, this._node);  
+    this._setupForm(this._param, this._forms_grp);
     this._node.appendChild(this._table);
   } // constructor
+
+  get form() {
+    return this._forms_grp;
+  }
 
   _setupForm(form_layouts, form_container) {
     widget.ConstructCOM(form_layouts, (com_obj) => {

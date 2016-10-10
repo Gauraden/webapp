@@ -13,11 +13,13 @@ class UIConcept extends Com {
     this._nav_node     = document.createElement("div");
     this._stage_node   = document.createElement("div");
     this._stage_title  = document.createElement("div");
+    this._stage_form   = document.createElement("div");
     this._stage_close  = document.createElement("button");
     
     this._nav_node.appendChild(this._stage_close);
     this._control_node.appendChild(this._stage_title);
     this._control_node.appendChild(this._nav_node);
+    this._control_node.appendChild(this._stage_form);
     this._node.appendChild(this._control_node);
     this._node.appendChild(this._stage_node);
     
@@ -54,12 +56,21 @@ class UIConcept extends Com {
     }
   }
   
+  _setTitleForm(form) {
+    if (form === undefined) {
+      return;
+    }
+    this._stage_form.innerHTML = "";
+    this._stage_form.appendChild(form);
+  }
+  
   _applySynergy(stage) {
     if (stage === undefined) {
       return false;
     }
     this._setTitleText(stage.title);
     this._setTitleNavigation(stage.navigation);
+    this._setTitleForm(stage.form);
     return true;
   }
   

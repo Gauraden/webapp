@@ -30,6 +30,10 @@ class Com {
     return undefined;
   }
   
+  get form() {
+    return undefined;
+  }
+  
   set style(style) {
     this._style = style;
   }

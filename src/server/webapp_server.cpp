@@ -155,7 +155,7 @@ void InitDialogs(const std::string &root_dir, webapp::http::Manager &manager) {
     },
     // данные
     [](const TestDataIf::Data &data, Com::Output *out) {
-      FillInTable(out, 10, 2, data);
+      FillInTable(out, 15, 2, data);
     }
   ));
   manager.AddCom<Table>("demo_table_1").SetDataInterface(TestDataIf::Create(
