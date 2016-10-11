@@ -11,6 +11,8 @@ CMAKE = cmake ../src/ -DOUTPUT_DIR=$(OUTPUT_SUB_DIR) \
 
 all: build_bin help
 
+pull: update_submodules
+
 help:
 	@echo " --- Помощь -------------------------------------------------------------------------------------"
 	@echo " * build_bin         - сборка библиотеки, демонстрационного сервера, тестов"
