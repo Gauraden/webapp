@@ -38,6 +38,28 @@ class Com {
     this._style = style;
   }
   
+  _setStyleForAllChildren(node, style) {
+    let child = node.firstChild;
+    for (; child !== null; child = child.nextSibling) {
+      if (child.nodeType != ELEMENT_NODE_ID) {
+        continue; 
+      }
+      Object.assign(child.style, style);
+    } 
+  }
+  
+  _hideAllChildren(node) {
+    this._setStyleForAllChildren(node, {
+      display: "none"
+    });
+  }
+  
+  _showAllChildren(node) {
+    this._setStyleForAllChildren(node, {
+      display: "block"
+    });
+  }
+  
   _showNotifier(notice) {
     if (notice === undefined) {
       return false;
@@ -47,9 +69,9 @@ class Com {
       return false;
     }
     if (this._notifier === undefined) {
+      this._hideAllChildren(this._node);
       this._notifier = document.createElement("div");
       this._notifier.className = "notifier";
-      //this._notifier.style.top = `${this._node.style.top + 10}px`;
       this._node.appendChild(this._notifier);
     }
     let progress = "...";
@@ -66,6 +88,7 @@ class Com {
     }
     this._node.removeChild(this._notifier);
     this._notifier = undefined;
+    this._showAllChildren(this._node);
   }
   
   encodeString(str) {

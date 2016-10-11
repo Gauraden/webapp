@@ -4,11 +4,12 @@ class UITable extends Com {
   constructor (name, param, style) {
     super(name, param, style, (json) => {
       this.updateHeader(json);
-      this.updateBody(json);      
+      this.updateBody(json);
     }); // super
     this._forms      = [];
     this._node       = document.createElement("div");
-    this._forms_grp  = document.createElement("div");
+    this._panel_body = document.createElement("div");
+    this._panel_head = document.createElement("div");
     this._table      = document.createElement("table");
     this._table_head = document.createElement("thead");
     this._table_body = document.createElement("tbody");
@@ -17,12 +18,21 @@ class UITable extends Com {
     this._table.appendChild(this._table_body);
     this._table.className = style.BASE_STYLE;
     
-    this._setupForm(this._param, this._forms_grp);
-    this._node.appendChild(this._table);
+    this._panel_head.className = style.PANEL_HEAD_STYLE;
+    this._panel_body.className = style.PANEL_BODY_STYLE;
+    this._node.className       = style.PANEL_STYLE;
+    
+    this._setupForm(this._param, this._panel_head);
+    this._panel_body.appendChild(this._table);
+    this._node.appendChild(this._panel_head);
+    this._node.appendChild(this._panel_body);
   } // constructor
 
   get form() {
-    return this._forms_grp;
+    this._panel_head.className = undefined;
+    this._panel_body.className = undefined;
+    this._node.className       = undefined;
+    return this._panel_head;
   }
 
   _setupForm(form_layouts, form_container) {

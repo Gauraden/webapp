@@ -45,8 +45,9 @@ class UIDateRange extends Com {
     let dt_to   = $("#" + this._getId("to"));
 
     dt_from.datetimepicker({
-      locale: "ru",
-      format: "YYYY-MM-DD HH:mm:ss"
+      locale         : "ru",
+      format         : "YYYY-MM-DD HH:mm:ss",
+      showTodayButton: true
     });
     dt_to.datetimepicker({
       locale         : "ru",

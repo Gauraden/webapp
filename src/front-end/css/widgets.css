@@ -1,5 +1,5 @@
 body {
-  padding-top: 40px;
+
 }
 
 .notifier {
@@ -13,6 +13,16 @@ body {
 
 .form_field {
   font-size: 14pt;
-  display: inline;
-  float: left;
+  display  : inline;
+  float    : left;
+}
+
+.panel-body {
+  padding      : 0px;
+  margin-top   : 105px;
+  margin-bottom: 15px;
+}
+
+.table {
+  font-size: 10pt;
 }
