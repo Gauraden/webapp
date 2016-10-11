@@ -6,12 +6,7 @@
  */
 
 #include <iostream>
-#include "../back-end/webapp_com_http.hpp"
-#include "../back-end/webapp_com_ctl.hpp"
-
-#define BOOST_THREAD_PROVIDES_FUTURE
-#include <boost/thread.hpp>
-#include <boost/thread/future.hpp>
+#include "../back-end/webapp_lib.hpp"
 
 static
 std::string AsyncDataSelect() {
@@ -53,7 +48,7 @@ class TestDataIf : public webapp::ctl::DataIFace {
                     << std::endl;
           // --------------------------
         }
-        _data_future = boost::async(AsyncDataSelect);
+        _data_future = webapp::Async(AsyncDataSelect);
       }
       return Proc(Proc::kInWork);
     }
@@ -74,7 +69,7 @@ class TestDataIf : public webapp::ctl::DataIFace {
       return TestDataIf::Ptr(new TestDataIf(meta, data));
     }
   private:
-    typedef boost::future<std::string> DataFuture;
+    typedef boost::unique_future<std::string> DataFuture;
 
     Handler    _meta_hndl;
     Handler    _data_hndl;

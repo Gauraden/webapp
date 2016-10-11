@@ -27,7 +27,7 @@ build_bin:
 
 build_jquery:
 	@echo "--- Сборка JQuery --------------------"
-	@cd ./src/third-party/jquery && npm install && grunt
+	@./submodules.sh rebuild_jquery "./src/third-party/jquery"
 
 tests:
 	@echo "--- Тестирование ---------------------"
@@ -39,8 +39,9 @@ install:
 
 update_submodules:
 	@echo "--- Обновление сторонних библиотек ---"
-	$(shell for subm in ./src/third-party/*; do [ -d "$subm" ] && [ ! -f "$subm/.git" ] && git submodule init && git submodule update; done)
+	@./submodules.sh init "./src/third-party"
 	@git submodule foreach git pull origin master
+	@./submodules.sh build_jquery "./src/third-party/jquery"
 
 dependencies:
 	$(shell [[ $(whereis -b npm) =~ ^npm:\ (.*)$ ]] || echo "Установите пакет NPM!" && exit 1)
