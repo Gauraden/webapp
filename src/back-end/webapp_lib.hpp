@@ -9,6 +9,7 @@
 #define BACK_END_WEBAPP_LIB_HPP_
 
 #define BOOST_THREAD_PROVIDES_FUTURE
+//#include <boost/version.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/future.hpp>
 #include <boost/utility/result_of.hpp>
@@ -18,7 +19,11 @@
 namespace webapp {
 
 template <class Func>
+#if BOOST_VERSION > 104900
+boost::future<typename boost::result_of<Func()>::type>
+#else
 boost::unique_future<typename boost::result_of<Func()>::type>
+#endif
 Async(Func f) {
   typedef typename boost::result_of<Func()>::type Result;
   boost::packaged_task<Result> pt(f);

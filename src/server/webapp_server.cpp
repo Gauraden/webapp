@@ -69,7 +69,11 @@ class TestDataIf : public webapp::ctl::DataIFace {
       return TestDataIf::Ptr(new TestDataIf(meta, data));
     }
   private:
+#if BOOST_VERSION > 104900
+    typedef boost::future<std::string> DataFuture;
+#else
     typedef boost::unique_future<std::string> DataFuture;
+#endif
 
     Handler    _meta_hndl;
     Handler    _data_hndl;
