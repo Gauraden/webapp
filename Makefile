@@ -9,7 +9,7 @@ CMAKE = cmake ../src/ -DOUTPUT_DIR=$(OUTPUT_SUB_DIR) \
                       -DCMAKE_C_COMPILER=$(CMAKE_C_COMPILER) \
                       -DCMAKE_FIND_ROOT_PATH=$(CMAKE_FIND_ROOT_PATH)
 
-all: build_bin help
+all: build_bin install help
 
 pull: update_submodules
 
@@ -25,7 +25,7 @@ help:
 build_bin:
 	@echo "--- Сборка ---------------------------"
 	@mkdir -p ./build ./output
-	@cd ./build/ && rm -rf ./* && $(CMAKE) && make && make install
+	@cd ./build/ && rm -rf ./* && $(CMAKE) && make
 
 build_jquery:
 	@echo "--- Сборка JQuery --------------------"
@@ -36,8 +36,20 @@ tests:
 	@cd ./output && ./webapp_units_tests
 
 install:
-	@echo "--- Установка ------------------------"
-	@cd ./build/ && $(CMAKE) && make install
+	@echo "--- Установка back-end ---------------"
+	@cd ./build/ && $(CMAKE) -DINSTALL_SOURCE=back-end && make install
+	
+install_frontend:
+	@echo "--- Установка front-end --------------"
+	@cd ./build/ && $(CMAKE) -DINSTALL_SOURCE=front-end && make install
+	
+install_demo:
+	@echo "--- Установка demo -------------------"
+	@cd ./build/ && $(CMAKE) -DINSTALL_SOURCE=demo && make install
+	
+install_utests:
+	@echo "--- Установка unit tests -------------"
+	@cd ./build/ && $(CMAKE) -DINSTALL_SOURCE=unit-tests && make install
 
 update_submodules:
 	@echo "--- Обновление сторонних библиотек ---"

@@ -16,4 +16,6 @@ target_link_libraries (webapp_lib
   pthread
 )
 
-install_targets(/ webapp_lib)
+if ("${INSTALL_SOURCE}" STREQUAL "back-end")
+  install_targets(/ webapp_lib)
+endif ()

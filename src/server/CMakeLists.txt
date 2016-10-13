@@ -6,5 +6,7 @@ target_link_libraries (webapp_server
   webapp_lib
 )
 
-install_targets(/ webapp_server)
+if ("${INSTALL_SOURCE}" STREQUAL "demo")
+  install_targets(/demo webapp_server)
+endif ()
 

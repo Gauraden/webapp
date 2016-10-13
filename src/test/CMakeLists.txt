@@ -11,4 +11,6 @@ target_link_libraries (webapp_units_tests
   webapp_lib
 )
 
-install_targets(/ webapp_units_tests)
+if ("${INSTALL_SOURCE}" STREQUAL "unit-tests")
+  install_targets(/ webapp_units_tests)
+endif ()
