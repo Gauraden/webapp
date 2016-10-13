@@ -9,6 +9,8 @@ CMAKE = cmake ../src/ -DOUTPUT_DIR=$(OUTPUT_SUB_DIR) \
                       -DCMAKE_C_COMPILER=$(CMAKE_C_COMPILER) \
                       -DCMAKE_FIND_ROOT_PATH=$(CMAKE_FIND_ROOT_PATH)
 
+JQUERY_PATH = "./src/third-party/jquery"
+
 all: build_bin install help
 
 pull: update_submodules
@@ -32,7 +34,7 @@ build_bin:
 
 build_jquery:
 	@echo "--- Сборка JQuery --------------------"
-	@./submodules.sh rebuild_jquery "./src/third-party/jquery"
+	@./submodules.sh rebuild_jquery "$(JQUERY_PATH)"
 
 tests:
 	@echo "--- Тестирование ---------------------"
@@ -44,10 +46,12 @@ install:
 	
 install_frontend:
 	@echo "--- Установка front-end --------------"
+	@./submodules.sh build_jquery "$(JQUERY_PATH)"
 	@cd ./build/ && $(CMAKE) -DINSTALL_SOURCE=front-end && make install
 	
 install_demo:
 	@echo "--- Установка demo -------------------"
+	@./submodules.sh build_jquery "$(JQUERY_PATH)"
 	@cd ./build/ && $(CMAKE) -DINSTALL_SOURCE=demo && make install
 	
 install_utests:
@@ -58,7 +62,6 @@ update_submodules:
 	@echo "--- Обновление сторонних библиотек ---"
 	@./submodules.sh init "./src/third-party"
 	@git submodule foreach git pull origin master
-	@./submodules.sh build_jquery "./src/third-party/jquery"
 
 dependencies:
 	$(shell [[ $(whereis -b npm) =~ ^npm:\ (.*)$ ]] || echo "Установите пакет NPM!" && exit 1)
