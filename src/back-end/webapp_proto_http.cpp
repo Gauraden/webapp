@@ -1320,6 +1320,10 @@ ProtocolHTTP::CacheControl& ProtocolHTTP::Response::UseCacheControl() {
   return _state->header.cache_control;
 }
 
+ProtocolHTTP::ETag& ProtocolHTTP::Response::UseETag() {
+  return _state->header.etag;
+}
+
 const ProtocolHTTP::Header& ProtocolHTTP::Response::GetHeader() const {
   return _state->header;
 }

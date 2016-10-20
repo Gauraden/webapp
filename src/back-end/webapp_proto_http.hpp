@@ -346,6 +346,7 @@ class ProtocolHTTP : public Protocol {
         static Header GetHeaderForJSON();
 
         CacheControl& UseCacheControl();
+        ETag&         UseETag();
 
         void SetHeader(Code status_id);
         void SetHeader(Code status_id, const Header &header);
