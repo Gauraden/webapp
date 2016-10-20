@@ -625,6 +625,16 @@ BOOST_AUTO_TEST_CASE(ProtocolHTTPCacheControlTest) {
   BOOST_CHECK(ctl.get_directive() == "must-revalidate");
 }
 
+BOOST_AUTO_TEST_CASE(ProtocolHTTPETagTest) {
+  const std::string kETagVal("testing value");
+  webapp::ProtocolHTTP::ETag etag;
+  BOOST_CHECK(etag.get_directive() == "");
+  etag.Predefined(kETagVal);
+  BOOST_CHECK(etag.get_directive() == kETagVal);
+  etag.Random();
+  BOOST_CHECK(etag.get_directive() != kETagVal);
+}
+
 BOOST_AUTO_TEST_CASE(ProtocolHTTPResponseGetTextHeaderTest) {
   // заголовок по умолчанию
   const webapp::ProtocolHTTP::Header kDefHeader(

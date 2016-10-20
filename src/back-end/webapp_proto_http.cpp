@@ -468,6 +468,33 @@ ProtocolHTTP::CacheControl& ProtocolHTTP::CacheControl::MustRevalidate() {
 const std::string& ProtocolHTTP::CacheControl::get_directive() const {
   return _directive;
 }
+// ProtocolHTTP::ETag ----------------------------------------------------------
+static std::string NumToStr(uint32_t num) {
+  static const char kSymbols[] = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+  };
+  std::string res;
+  do {
+    const uint32_t kTail = num % 10;
+    res += kSymbols[kTail];
+    num = num / 10;
+  } while (num > 0);
+  return res;
+}
+
+void ProtocolHTTP::ETag::Random() {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  _value = NumToStr(tv.tv_sec) + NumToStr(tv.tv_usec);
+}
+
+void ProtocolHTTP::ETag::Predefined(const std::string &val) {
+  _value = val;
+}
+
+const std::string& ProtocolHTTP::ETag::get_directive() const {
+  return _value;
+}
 // Protocol --------------------------------------------------------------------
 Protocol::Protocol() {
 }
@@ -1263,6 +1290,8 @@ static bool SetupHeader(ProtocolHTTP::Response::State *state) {
     return false;
   }
   static const char kCrLf[] = "\r\n";
+  const std::string kCacheControl = state->header.cache_control.get_directive();
+  const std::string kETag         = state->header.etag.get_directive();
   std::stringstream str_h;
   str_h << "HTTP/1.1 "        << GetResponseStatus(state->status_id)
         << kCrLf
@@ -1273,10 +1302,14 @@ static bool SetupHeader(ProtocolHTTP::Response::State *state) {
         << kCrLf
         << "Expires: "        << state->header.expires.ToString()
         << kCrLf;
-  if (state->header.cache_control.get_directive().size() != 0) {
-    str_h << "Cache-Control: " << state->header.cache_control.get_directive()
+  if (kCacheControl.size() != 0) {
+    str_h << "Cache-Control: " << kCacheControl
           << kCrLf;
     state->header.cache_control.Reset();
+  }
+  if (kETag.size() != 0) {
+    str_h << "ETag: " << kETag
+          << kCrLf;
   }
   str_h << kCrLf;
   state->src_header.reset(new ProtocolHTTP::Response::SourceFromStream(str_h.str()));

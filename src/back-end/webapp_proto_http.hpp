@@ -173,6 +173,15 @@ class ProtocolHTTP : public Protocol {
       PTime time;
     };
 
+    class ETag {
+      public:
+        void Random();
+        void Predefined(const std::string &val);
+        const std::string& get_directive() const;
+      private:
+        std::string _value;
+    };
+
     struct Header {
       Header(): age(0), complete(false) {}
       Line         line;
@@ -183,6 +192,7 @@ class ProtocolHTTP : public Protocol {
       Content      content;
       Expires      expires;
       CacheControl cache_control;
+      ETag         etag;
       bool         complete;
     };
 
