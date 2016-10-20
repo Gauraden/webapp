@@ -8,12 +8,12 @@ add_library(webapp_lib
 )
 
 target_link_libraries (webapp_lib
+  pthread
   boost_thread
   boost_system
   boost_filesystem
   boost_date_time
   boost_regex
-  pthread
 )
 
 if ("${INSTALL_SOURCE}" STREQUAL "back-end")
