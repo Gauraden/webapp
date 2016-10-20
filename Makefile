@@ -36,6 +36,11 @@ build_jquery:
 	@echo "--- Сборка JQuery --------------------"
 	@./submodules.sh rebuild_jquery "$(JQUERY_PATH)"
 
+build_tests:
+	@echo "--- Сборка юнит тестов ---------------"
+	@mkdir -p ./build ./output
+	@cd ./build/ && $(CMAKE) -DBUILD_UNIT_TESTS && make    
+
 tests:
 	@echo "--- Тестирование ---------------------"
 	@cd ./output && ./webapp_units_tests
