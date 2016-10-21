@@ -630,7 +630,7 @@ BOOST_AUTO_TEST_CASE(ProtocolHTTPETagTest) {
   webapp::ProtocolHTTP::ETag etag;
   BOOST_CHECK(etag.get_directive() == "");
   etag.Predefined(kETagVal);
-  BOOST_CHECK(etag.get_directive() == kETagVal);
+  BOOST_CHECK(etag.get_directive() == "\"" + kETagVal + "\"");
   etag.Random();
   BOOST_CHECK(etag.get_directive() != kETagVal);
 }

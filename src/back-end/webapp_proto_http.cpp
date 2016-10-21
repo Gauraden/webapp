@@ -485,11 +485,15 @@ static std::string NumToStr(uint32_t num) {
 void ProtocolHTTP::ETag::Random() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  _value = NumToStr(tv.tv_sec) + NumToStr(tv.tv_usec);
+  _value = "\"" + NumToStr(tv.tv_sec) + NumToStr(tv.tv_usec) + "\"";
 }
 
 void ProtocolHTTP::ETag::Predefined(const std::string &val) {
-  _value = val;
+  if (val.size() > 0) {
+    _value = "\"" + val + "\"";
+  } else {
+    _value = val;
+  }
 }
 
 const std::string& ProtocolHTTP::ETag::get_directive() const {

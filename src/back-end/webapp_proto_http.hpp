@@ -172,7 +172,7 @@ class ProtocolHTTP : public Protocol {
 
       PTime time;
     };
-
+    // https://tools.ietf.org/html/rfc7232#section-2.3
     class ETag {
       public:
         void Random();

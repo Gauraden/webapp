@@ -54,9 +54,10 @@ class Server {
     typedef uint16_t Port;
     typedef USize    Address;
 
-    static const Address kUndefinedAddress = 0xFFFFFFFF;
-    static const Address kLoopbackAddress  = 0x7F000001;
-    static const Port    kUndefinedPort    = 0;
+    static const Address kUndefinedAddress;
+    static const Address kLoopbackAddress;
+    static const Address kAllIPv4Addresses;
+    static const Port    kUndefinedPort;
 
     Server();
     virtual ~Server();

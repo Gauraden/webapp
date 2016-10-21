@@ -37,6 +37,11 @@ Inspector::Ptr Inspector::Create() {
   return Inspector::Ptr(new Inspector());
 }
 // Server ----------------------------------------------------------------------
+const Server::Address Server::kUndefinedAddress = 0xFFFFFFFF;
+const Server::Address Server::kLoopbackAddress  = 0x7F000001;
+const Server::Address Server::kAllIPv4Addresses = 0x00000000;
+const Server::Port    Server::kUndefinedPort    = 0;
+
 class Server::Resources {
   public:
     /**
