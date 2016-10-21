@@ -33,7 +33,7 @@ class TestDataIf : public webapp::ctl::DataIFace {
       typedef webapp::Com::Process Proc;
       if (_data_future.get_state() == future_state::ready) {
         _data = _data_future.get();
-        DataFuture tmp_f;
+        ReqTask::Future tmp_f;
         _data_future.swap(tmp_f);
         return Proc(Proc::kFinished);
       }
@@ -48,7 +48,7 @@ class TestDataIf : public webapp::ctl::DataIFace {
                     << std::endl;
           // --------------------------
         }
-        _data_future = webapp::Async(AsyncDataSelect);
+        _data_future = ReqTask::Async(AsyncDataSelect);
       }
       return Proc(Proc::kInWork);
     }
@@ -69,16 +69,12 @@ class TestDataIf : public webapp::ctl::DataIFace {
       return TestDataIf::Ptr(new TestDataIf(meta, data));
     }
   private:
-#if BOOST_VERSION > 104900
-    typedef boost::future<std::string> DataFuture;
-#else
-    typedef boost::unique_future<std::string> DataFuture;
-#endif
+    typedef webapp::Task<std::string> ReqTask;
 
-    Handler    _meta_hndl;
-    Handler    _data_hndl;
-    DataFuture _data_future;
-    Data       _data;
+    Handler         _meta_hndl;
+    Handler         _data_hndl;
+    ReqTask::Future _data_future;
+    Data            _data;
 };
 
 class FileManager {

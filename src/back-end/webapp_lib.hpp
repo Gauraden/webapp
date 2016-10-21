@@ -17,26 +17,24 @@
 
 namespace webapp {
 
-template <class Func>
+template <class Result>
+struct Task {
 #if BOOST_VERSION > 104900
-boost::future<typename boost::result_of<Func()>::type>
+  typedef boost::future<Result> Future;
 #else
-boost::unique_future<typename boost::result_of<Func()>::type>
+  typedef boost::unique_future<Result> Future;
 #endif
-Async(Func f) {
-  typedef typename boost::result_of<Func()>::type Result;
-  boost::packaged_task<Result> pt(f);
+  typedef Result (*Handler)();
 
-//auto fut = pt.get_future();
-#if BOOST_VERSION > 104900
-  boost::future<Result> fut = pt.get_future();
-#else
-  boost::unique_future<Result> fut = pt.get_future();
-#endif
-  boost::thread( boost::move(pt) ).detach();
-  boost::move(fut);
-  return fut;
-}
+  static
+  Future Async(Handler handler) {
+    boost::packaged_task<Result> pt(handler);
+    Future fut = pt.get_future();
+    boost::thread( boost::move(pt) ).detach();
+    boost::move(fut);
+    return fut;
+  }
+};
 
 } // namespace webapp
 
