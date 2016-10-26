@@ -133,12 +133,13 @@ Com::Process FileDialog::GoTo(const std::string &name) {
 
 Com::Process FileDialog::Open(const std::string &name) {
   if (name.size() > 0) {
-    _opening_file = name;
+    namespace fs = boost::filesystem;
+    _opening_file = fs::path(name).filename().string();
   }
   if (not CheckName(_opening_file)) {
     return Process();
   }
-  const std::string kPath(_cur_dir.string() + _opening_file);
+  const std::string kPath(_cur_dir.string() + "/" + _opening_file);
   const Process kHandlerRes = _open_handler != 0 ?
                               _open_handler(kPath) :
                               Process(Process::kError, "отсутствует обработчик");
